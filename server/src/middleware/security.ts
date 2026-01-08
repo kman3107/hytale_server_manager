@@ -28,7 +28,7 @@ export function configureSecurityHeaders(app: Express): void {
         objectSrc: ["'none'"],
         mediaSrc: ["'self'"],
         frameSrc: ["'none'"],
-        // Explicitly NOT including upgrade-insecure-requests to allow HTTP
+        upgradeInsecureRequests: null, // Explicitly disable - allows HTTP
       },
     })
   );

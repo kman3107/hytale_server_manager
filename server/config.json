@@ -5,6 +5,8 @@
   "logLevel": "info",
   "logToFile": true,
   "jwtExpiresIn": "7d",
+  "rateLimitWindow": 900000,
+  "rateLimitMax": 250,
   "dataPath": "./data",
   "serversBasePath": "./data/servers",
   "backupsBasePath": "./data/backups",

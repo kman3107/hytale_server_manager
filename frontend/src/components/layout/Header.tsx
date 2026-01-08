@@ -1,25 +1,82 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Bell, Search, User, LogOut, ChevronDown, Sun, Moon } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Bell, Search, User, LogOut, ChevronDown, Sun, Moon, AlertCircle, AlertTriangle, Info, Loader2 } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
-import { useAppStore } from '../../stores/appStore';
 import { useThemeStore } from '../../stores/themeStore';
+import { useAlertsStore } from '../../stores/alertsStore';
 import { Badge } from '../ui';
 import { motion, AnimatePresence } from 'framer-motion';
+
+const getSeverityIcon = (severity: string) => {
+  switch (severity) {
+    case 'critical':
+      return <AlertCircle size={14} className="text-red-500" />;
+    case 'warning':
+      return <AlertTriangle size={14} className="text-yellow-500" />;
+    default:
+      return <Info size={14} className="text-blue-500" />;
+  }
+};
+
+const getRelativeTime = (dateString: string) => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return date.toLocaleDateString();
+};
 
 export const Header = () => {
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
-  const notifications = useAppStore((state) => state.notifications);
-  const markAllAsRead = useAppStore((state) => state.markAllNotificationsAsRead);
   const theme = useThemeStore((state) => state.theme);
   const toggleTheme = useThemeStore((state) => state.toggleTheme);
   const navigate = useNavigate();
 
+  // Alerts from backend
+  const { alerts, unreadCount, isLoading, fetchAlerts, markAllAsRead } = useAlertsStore();
+
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isMarkingRead, setIsMarkingRead] = useState(false);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  // Fetch alerts on mount and periodically
+  useEffect(() => {
+    fetchAlerts();
+
+    // Refresh alerts every 60 seconds
+    const interval = setInterval(() => {
+      fetchAlerts();
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, [fetchAlerts]);
+
+  // Fetch alerts when dropdown opens
+  useEffect(() => {
+    if (showNotifications) {
+      fetchAlerts();
+    }
+  }, [showNotifications, fetchAlerts]);
+
+  const handleMarkAllAsRead = async () => {
+    if (isMarkingRead || unreadCount === 0) return;
+    setIsMarkingRead(true);
+    try {
+      await markAllAsRead();
+    } catch (error) {
+      console.error('Failed to mark all as read:', error);
+    } finally {
+      setIsMarkingRead(false);
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -66,57 +123,85 @@ export const Header = () => {
                 className="absolute right-0 mt-2 w-80 sm:w-96 glass-card shadow-xl max-h-96 overflow-auto custom-scrollbar"
               >
                 <div className="p-4 border-b border-gray-300 dark:border-gray-800 flex items-center justify-between">
-                  <h3 className="font-heading font-semibold">Notifications</h3>
+                  <h3 className="font-heading font-semibold">Alerts</h3>
                   {unreadCount > 0 && (
                     <button
-                      onClick={markAllAsRead}
-                      className="text-xs text-accent-primary hover:underline"
+                      onClick={handleMarkAllAsRead}
+                      disabled={isMarkingRead}
+                      className="text-xs text-accent-primary hover:underline disabled:opacity-50 flex items-center gap-1"
                     >
+                      {isMarkingRead && <Loader2 size={10} className="animate-spin" />}
                       Mark all as read
                     </button>
                   )}
                 </div>
-                <div className="divide-y divide-gray-800">
-                  {notifications.slice(0, 5).map((notification) => (
-                    <div
-                      key={notification.id}
-                      className={`p-4 hover:bg-gray-200 dark:bg-gray-800/50 cursor-pointer ${
-                        !notification.read ? 'bg-accent-primary/5' : ''
-                      }`}
-                    >
-                      <div className="flex items-start gap-2">
-                        <Badge
-                          variant={
-                            notification.type === 'error'
-                              ? 'danger'
-                              : notification.type === 'warning'
-                              ? 'warning'
-                              : notification.type === 'success'
-                              ? 'success'
-                              : 'info'
-                          }
-                          size="sm"
-                        >
-                          {notification.type}
-                        </Badge>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-text-light-primary dark:text-text-primary">
-                            {notification.title}
-                          </p>
-                          <p className="text-xs text-text-light-muted dark:text-text-muted mt-1">{notification.message}</p>
-                          <p className="text-xs text-text-light-muted dark:text-text-muted mt-1">
-                            {new Date(notification.timestamp).toLocaleTimeString()}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  {notifications.length === 0 && (
+                <div className="divide-y divide-gray-300 dark:divide-gray-800">
+                  {isLoading && alerts.length === 0 ? (
                     <div className="p-8 text-center text-text-light-muted dark:text-text-muted">
-                      <p>No notifications</p>
+                      <Loader2 size={20} className="animate-spin mx-auto mb-2" />
+                      <p>Loading alerts...</p>
                     </div>
+                  ) : alerts.length === 0 ? (
+                    <div className="p-8 text-center text-text-light-muted dark:text-text-muted">
+                      <Bell size={24} className="mx-auto mb-2 opacity-50" />
+                      <p>No alerts</p>
+                    </div>
+                  ) : (
+                    alerts.slice(0, 5).map((alert) => (
+                      <Link
+                        key={alert.id}
+                        to="/alerts"
+                        onClick={() => setShowNotifications(false)}
+                        className={`block p-4 hover:bg-gray-200 dark:hover:bg-gray-800/50 cursor-pointer transition-colors ${
+                          !alert.isRead ? 'bg-accent-primary/5' : ''
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="mt-0.5">
+                            {getSeverityIcon(alert.severity)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <Badge
+                                variant={
+                                  alert.severity === 'critical'
+                                    ? 'danger'
+                                    : alert.severity === 'warning'
+                                    ? 'warning'
+                                    : 'info'
+                                }
+                                size="sm"
+                              >
+                                {alert.severity}
+                              </Badge>
+                              {!alert.isRead && (
+                                <span className="w-2 h-2 bg-accent-primary rounded-full" />
+                              )}
+                            </div>
+                            <p className="text-sm font-medium text-text-light-primary dark:text-text-primary mt-1 truncate">
+                              {alert.title}
+                            </p>
+                            <p className="text-xs text-text-light-muted dark:text-text-muted mt-1 line-clamp-2">
+                              {alert.message}
+                            </p>
+                            <p className="text-xs text-text-light-muted dark:text-text-muted mt-1">
+                              {getRelativeTime(alert.createdAt)}
+                            </p>
+                          </div>
+                        </div>
+                      </Link>
+                    ))
                   )}
                 </div>
+                {alerts.length > 0 && (
+                  <Link
+                    to="/alerts"
+                    onClick={() => setShowNotifications(false)}
+                    className="block p-3 text-center text-sm text-accent-primary hover:bg-gray-200 dark:hover:bg-gray-800/50 border-t border-gray-300 dark:border-gray-800"
+                  >
+                    View all alerts
+                  </Link>
+                )}
               </motion.div>
             )}
           </AnimatePresence>

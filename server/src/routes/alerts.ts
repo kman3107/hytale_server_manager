@@ -44,5 +44,19 @@ export function createAlertsRoutes(alertsService: AlertsService): Router {
     }
   });
 
+  /**
+   * PUT /api/alerts/read-all
+   * Mark all alerts as read across all servers
+   */
+  router.put('/read-all', requirePermission(PERMISSIONS.ALERTS_MANAGE), async (_req: Request, res: Response) => {
+    try {
+      await alertsService.markAllAsRead();
+      res.json({ message: 'All alerts marked as read' });
+    } catch (error: any) {
+      logger.error('Error marking all alerts as read:', error);
+      res.status(500).json({ error: error.message || 'Failed to mark alerts as read' });
+    }
+  });
+
   return router;
 }

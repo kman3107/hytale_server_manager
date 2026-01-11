@@ -1,0 +1,284 @@
+import { useState, useEffect, useCallback } from 'react';
+import { Button } from '../ui/Button';
+import { HytaleOAuthModal } from '../modals/HytaleOAuthModal';
+import { HytaleDownloadProgress } from './HytaleDownloadProgress';
+import {
+  useHytaleDownloaderStore,
+  useHytaleDownloaderStatus,
+  useHytaleDownloaderDownload,
+} from '../../stores/hytaleDownloaderStore';
+import {
+  Download,
+  Key,
+  Loader2,
+  CheckCircle,
+  AlertCircle,
+  RefreshCw,
+} from 'lucide-react';
+
+interface HytaleServerDownloadSectionProps {
+  serverPath: string;
+  onVersionSet?: (version: string) => void;
+  onDownloadComplete?: () => void;
+}
+
+export const HytaleServerDownloadSection = ({
+  serverPath,
+  onVersionSet,
+  onDownloadComplete,
+}: HytaleServerDownloadSectionProps) => {
+  const {
+    fetchStatus,
+    installBinary,
+    startDownload,
+    checkVersion,
+    gameVersion,
+    isCheckingVersion,
+    isStartingDownload,
+    error,
+    clearError,
+  } = useHytaleDownloaderStore();
+
+  const status = useHytaleDownloaderStatus();
+  const downloadSession = useHytaleDownloaderDownload();
+
+  const [showOAuthModal, setShowOAuthModal] = useState(false);
+  const [isInstalling, setIsInstalling] = useState(false);
+  const [selectedPatchline, setSelectedPatchline] = useState('release');
+  const [localError, setLocalError] = useState<string | null>(null);
+
+  // Fetch status on mount
+  useEffect(() => {
+    fetchStatus();
+  }, [fetchStatus]);
+
+  // Update version when game version is fetched
+  useEffect(() => {
+    if (gameVersion?.version && onVersionSet) {
+      onVersionSet(gameVersion.version);
+    }
+  }, [gameVersion?.version, onVersionSet]);
+
+  // Handle download complete
+  useEffect(() => {
+    if (downloadSession?.status === 'complete') {
+      onDownloadComplete?.();
+    }
+  }, [downloadSession?.status, onDownloadComplete]);
+
+  const handleInstallBinary = useCallback(async () => {
+    setIsInstalling(true);
+    setLocalError(null);
+    try {
+      await installBinary();
+    } catch (err: any) {
+      setLocalError(err.message || 'Failed to install');
+    } finally {
+      setIsInstalling(false);
+    }
+  }, [installBinary]);
+
+  const handleCheckVersion = useCallback(async () => {
+    clearError();
+    setLocalError(null);
+    try {
+      await checkVersion(selectedPatchline);
+    } catch (err: any) {
+      setLocalError(err.message || 'Failed to check version');
+    }
+  }, [checkVersion, selectedPatchline, clearError]);
+
+  const handleStartDownload = useCallback(async () => {
+    if (!serverPath) {
+      setLocalError('Please specify a server path first');
+      return;
+    }
+
+    clearError();
+    setLocalError(null);
+    try {
+      await startDownload(serverPath, selectedPatchline);
+    } catch (err: any) {
+      setLocalError(err.message || 'Failed to start download');
+    }
+  }, [startDownload, serverPath, selectedPatchline, clearError]);
+
+  const handleOAuthSuccess = useCallback(() => {
+    fetchStatus();
+    setShowOAuthModal(false);
+  }, [fetchStatus]);
+
+  // If binary not installed
+  if (!status?.binaryInstalled) {
+    return (
+      <div className="p-4 bg-primary-bg-secondary rounded-lg space-y-4">
+        <div className="flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
+          <div>
+            <h4 className="font-medium text-text-light-primary dark:text-text-primary mb-1">
+              Hytale Downloader Required
+            </h4>
+            <p className="text-sm text-text-light-muted dark:text-text-muted mb-3">
+              Install the Hytale Downloader to download official server files.
+            </p>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleInstallBinary}
+              disabled={isInstalling}
+            >
+              {isInstalling ? (
+                <Loader2 size={16} className="mr-2 animate-spin" />
+              ) : (
+                <Download size={16} className="mr-2" />
+              )}
+              {isInstalling ? 'Installing...' : 'Install Downloader'}
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // If not authenticated
+  if (!status?.isAuthenticated) {
+    return (
+      <>
+        <div className="p-4 bg-primary-bg-secondary rounded-lg space-y-4">
+          <div className="flex items-start gap-3">
+            <Key className="w-5 h-5 text-accent-primary shrink-0 mt-0.5" />
+            <div>
+              <h4 className="font-medium text-text-light-primary dark:text-text-primary mb-1">
+                Hytale Account Required
+              </h4>
+              <p className="text-sm text-text-light-muted dark:text-text-muted mb-3">
+                Connect your Hytale account to download server files.
+              </p>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => setShowOAuthModal(true)}
+              >
+                <Key size={16} className="mr-2" />
+                Connect Hytale Account
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <HytaleOAuthModal
+          isOpen={showOAuthModal}
+          onClose={() => setShowOAuthModal(false)}
+          onSuccess={handleOAuthSuccess}
+        />
+      </>
+    );
+  }
+
+  // Show download section
+  return (
+    <div className="p-4 bg-primary-bg-secondary rounded-lg space-y-4">
+      <div className="flex items-center justify-between">
+        <h4 className="font-medium text-text-light-primary dark:text-text-primary">
+          Download Server Files
+        </h4>
+        <div className="flex items-center gap-2 text-sm text-green-500">
+          <CheckCircle size={14} />
+          <span>Connected</span>
+        </div>
+      </div>
+
+      {/* Error message */}
+      {(error || localError) && (
+        <div className="p-3 bg-red-500/10 text-red-500 text-sm rounded-lg flex items-center justify-between">
+          <span>{error || localError}</span>
+          <button
+            onClick={() => {
+              clearError();
+              setLocalError(null);
+            }}
+            className="hover:opacity-70"
+          >
+            &times;
+          </button>
+        </div>
+      )}
+
+      {/* Patchline selector */}
+      <div>
+        <label className="block text-sm font-medium text-text-light-primary dark:text-text-primary mb-2">
+          Patchline
+        </label>
+        <select
+          value={selectedPatchline}
+          onChange={(e) => setSelectedPatchline(e.target.value)}
+          className="w-full px-4 py-2 bg-white dark:bg-primary-bg border border-gray-300 dark:border-gray-700 rounded-lg text-text-light-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary/50"
+          disabled={downloadSession && ['downloading', 'extracting', 'validating'].includes(downloadSession.status)}
+        >
+          <option value="release">Release (Stable)</option>
+          <option value="pre-release">Pre-release (Beta)</option>
+        </select>
+      </div>
+
+      {/* Version info */}
+      {gameVersion && (
+        <div className="p-3 bg-green-500/10 rounded-lg">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-text-light-secondary dark:text-text-secondary">
+              Available Version
+            </span>
+            <span className="text-sm font-mono text-green-500">
+              {gameVersion.version}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Download progress */}
+      {downloadSession && (
+        <HytaleDownloadProgress
+          onComplete={onDownloadComplete}
+          showCancel={downloadSession.status !== 'complete' && downloadSession.status !== 'failed'}
+        />
+      )}
+
+      {/* Actions */}
+      {(!downloadSession || downloadSession.status === 'failed' || downloadSession.status === 'complete') && (
+        <div className="flex gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleCheckVersion}
+            disabled={isCheckingVersion}
+          >
+            {isCheckingVersion ? (
+              <Loader2 size={16} className="mr-2 animate-spin" />
+            ) : (
+              <RefreshCw size={16} className="mr-2" />
+            )}
+            {isCheckingVersion ? 'Checking...' : 'Check Version'}
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={handleStartDownload}
+            disabled={isStartingDownload || !serverPath}
+          >
+            {isStartingDownload ? (
+              <Loader2 size={16} className="mr-2 animate-spin" />
+            ) : (
+              <Download size={16} className="mr-2" />
+            )}
+            {isStartingDownload ? 'Starting...' : 'Download Server'}
+          </Button>
+        </div>
+      )}
+
+      {!serverPath && (
+        <p className="text-xs text-text-light-muted dark:text-text-muted">
+          Enter a server directory path above to enable downloading.
+        </p>
+      )}
+    </div>
+  );
+};

@@ -84,7 +84,7 @@ export class JavaServerAdapter implements IServerAdapter {
 
     // Java configuration with defaults
     this.javaPath = adapterConfig?.javaPath || 'java';
-    this.jarFile = adapterConfig?.jarFile || 'server.jar';
+    this.jarFile = adapterConfig?.jarFile || 'HytaleServer.jar';
     const minMemory = adapterConfig?.minMemory || '1G';
     this.maxMemory = adapterConfig?.maxMemory || '2G';
     this.javaArgs = adapterConfig?.javaArgs || [
@@ -548,32 +548,32 @@ export class JavaServerAdapter implements IServerAdapter {
   // ============================================
 
   /**
-   * Install a mod or modpack to the plugins folder
-   * - MODPACK: extract ZIP contents to plugins/
-   * - PLUGIN/other: save directly as JAR file
+   * Install a mod or modpack to the mods folder
+   * - MODPACK: extract ZIP contents to mods/
+   * - MOD/other: save directly as JAR file
    * @returns Array of installed files for database tracking
    */
   async installMod(modFile: Buffer, metadata: ModMetadata): Promise<InstalledFile[]> {
     logger.info(`[JavaAdapter] workingDirectory: ${this.workingDirectory}`);
-    const pluginsDir = path.join(this.workingDirectory, 'plugins');
-    logger.info(`[JavaAdapter] pluginsDir: ${pluginsDir}`);
+    const modsDir = path.join(this.workingDirectory, 'mods');
+    logger.info(`[JavaAdapter] modsDir: ${modsDir}`);
 
-    // Ensure plugins directory exists
-    await fs.ensureDir(pluginsDir);
-    logger.info(`[JavaAdapter] ensureDir completed for ${pluginsDir}`);
+    // Ensure mods directory exists
+    await fs.ensureDir(modsDir);
+    logger.info(`[JavaAdapter] ensureDir completed for ${modsDir}`);
 
-    logger.info(`[JavaAdapter] Installing ${metadata.classification} "${metadata.projectTitle}" to ${pluginsDir}`);
+    logger.info(`[JavaAdapter] Installing ${metadata.classification} "${metadata.projectTitle}" to ${modsDir}`);
     logger.info(`[JavaAdapter] modFile size: ${modFile.length} bytes`);
 
     const installedFiles: InstalledFile[] = [];
 
     // Use classification to determine how to handle the file
     // MODPACKs are ZIP archives that need to be extracted
-    // PLUGINs (and other types) are direct JAR files
+    // MODs (and other types) are direct JAR files
     const isModpack = metadata.classification?.toUpperCase() === 'MODPACK';
 
     if (isModpack) {
-      // Extract ZIP contents to plugins folder
+      // Extract ZIP contents to mods folder
       const AdmZip = (await import('adm-zip')).default;
       const zip = new AdmZip(modFile);
       const zipEntries = zip.getEntries();
@@ -586,13 +586,13 @@ export class JavaServerAdapter implements IServerAdapter {
 
         // Only extract JAR files and config files
         if (['jar', 'yml', 'json', 'toml'].includes(ext)) {
-          const targetPath = path.join(pluginsDir, fileName);
+          const targetPath = path.join(modsDir, fileName);
           const data = entry.getData();
           await fs.writeFile(targetPath, data);
 
           installedFiles.push({
             fileName,
-            filePath: `plugins/${fileName}`,
+            filePath: `mods/${fileName}`,
             fileSize: data.length,
             fileType: ext,
           });
@@ -603,19 +603,19 @@ export class JavaServerAdapter implements IServerAdapter {
 
       logger.info(`[JavaAdapter] Extracted ${installedFiles.length} files from modpack ${metadata.projectTitle}`);
     } else {
-      // Single mod/plugin - save directly as JAR
+      // Single mod - save directly as JAR
       const fileName = `${metadata.projectId}.jar`;
-      const targetPath = path.join(pluginsDir, fileName);
+      const targetPath = path.join(modsDir, fileName);
       await fs.writeFile(targetPath, modFile);
 
       installedFiles.push({
         fileName,
-        filePath: `plugins/${fileName}`,
+        filePath: `mods/${fileName}`,
         fileSize: modFile.length,
         fileType: 'jar',
       });
 
-      logger.info(`[JavaAdapter] Saved plugin file: ${fileName}`);
+      logger.info(`[JavaAdapter] Saved mod file: ${fileName}`);
     }
 
     return installedFiles;
@@ -719,12 +719,12 @@ export class JavaServerAdapter implements IServerAdapter {
   }
 
   /**
-   * List installed mods from the plugins folder
+   * List installed mods from the mods folder
    */
   async listInstalledMods(): Promise<Mod[]> {
-    const pluginsDir = path.join(this.workingDirectory, 'plugins');
+    const modsDir = path.join(this.workingDirectory, 'mods');
 
-    if (!await fs.pathExists(pluginsDir)) {
+    if (!await fs.pathExists(modsDir)) {
       return [];
     }
 

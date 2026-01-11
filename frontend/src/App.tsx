@@ -25,6 +25,7 @@ const DashboardPage = lazy(() => import('./pages/dashboard/DashboardPage').then(
 const ServersPage = lazy(() => import('./pages/servers/ServersPage').then(m => ({ default: m.ServersPage })));
 const ServerDetailPage = lazy(() => import('./pages/servers/ServerDetailPage').then(m => ({ default: m.ServerDetailPage })));
 const ServerSettingsPage = lazy(() => import('./pages/servers/ServerSettingsPage').then(m => ({ default: m.ServerSettingsPage })));
+const ServerWorldsPage = lazy(() => import('./pages/servers/ServerWorldsPage').then(m => ({ default: m.ServerWorldsPage })));
 const ModsPage = lazy(() => import('./pages/mods/ModsPage').then(m => ({ default: m.ModsPage })));
 const ModpacksPage = lazy(() => import('./pages/modpacks/ModpacksPage').then(m => ({ default: m.ModpacksPage })));
 const BackupsPage = lazy(() => import('./pages/backups/BackupsPage').then(m => ({ default: m.BackupsPage })));
@@ -38,7 +39,7 @@ const AnalyticsPage = lazy(() => import('./pages/analytics/AnalyticsPage').then(
 const FileManagerPage = lazy(() => import('./pages/files/FileManagerPage').then(m => ({ default: m.FileManagerPage })));
 const PermissionsPage = lazy(() => import('./pages/permissions/PermissionsPage').then(m => ({ default: m.PermissionsPage })));
 const EconomyPage = lazy(() => import('./pages/economy/EconomyPage').then(m => ({ default: m.EconomyPage })));
-const WorldsPage = lazy(() => import('./pages/worlds/WorldsPage').then(m => ({ default: m.WorldsPage })));
+// WorldsPage is no longer used as a standalone page - worlds are now per-server at /servers/:id/worlds
 const AlertsPage = lazy(() => import('./pages/alerts/AlertsPage').then(m => ({ default: m.AlertsPage })));
 const UsersPage = lazy(() => import('./pages/users/UsersPage').then(m => ({ default: m.UsersPage })));
 const ActivityLogPage = lazy(() => import('./pages/activity/ActivityLogPage').then(m => ({ default: m.ActivityLogPage })));
@@ -240,6 +241,17 @@ function App() {
               />
 
               <Route
+                path="servers/:id/worlds"
+                element={
+                  <ProtectedRoute pageName="Server Worlds">
+                    <RequirePermission permission={PERMISSIONS.WORLDS_VIEW}>
+                      <ServerWorldsPage />
+                    </RequirePermission>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
                 path="mods"
                 element={
                   <ProtectedRoute pageName="Mods">
@@ -338,15 +350,10 @@ function App() {
                 }
               />
 
+              {/* Redirect old /worlds route to servers - worlds are now per-server */}
               <Route
                 path="worlds"
-                element={
-                  <ProtectedRoute pageName="Worlds">
-                    <RequirePermission permission={PERMISSIONS.WORLDS_VIEW}>
-                      <WorldsPage />
-                    </RequirePermission>
-                  </ProtectedRoute>
-                }
+                element={<Navigate to="/servers" replace />}
               />
 
               <Route

@@ -76,6 +76,12 @@ export const PERMISSIONS = {
   // Activity Log
   ACTIVITY_VIEW: 'activity:view',
   ACTIVITY_VIEW_ALL: 'activity:view:all',
+
+  // Hytale Downloader
+  HYTALE_DL_VIEW: 'hytale-downloader:view',
+  HYTALE_DL_AUTH: 'hytale-downloader:auth',
+  HYTALE_DL_DOWNLOAD: 'hytale-downloader:download',
+  HYTALE_DL_MANAGE: 'hytale-downloader:manage',
 } as const;
 
 export type PermissionCode = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
@@ -164,6 +170,12 @@ export const PERMISSION_DEFINITIONS: PermissionDefinition[] = [
   // Activity Log
   { code: PERMISSIONS.ACTIVITY_VIEW, name: 'View Activity', description: 'View activity log', category: 'activity' },
   { code: PERMISSIONS.ACTIVITY_VIEW_ALL, name: 'View All Activity', description: 'View all users\' activity', category: 'activity' },
+
+  // Hytale Downloader
+  { code: PERMISSIONS.HYTALE_DL_VIEW, name: 'View Hytale Downloader', description: 'View Hytale downloader status and versions', category: 'hytale-downloader' },
+  { code: PERMISSIONS.HYTALE_DL_AUTH, name: 'Authenticate Hytale', description: 'Connect and authenticate with Hytale account', category: 'hytale-downloader' },
+  { code: PERMISSIONS.HYTALE_DL_DOWNLOAD, name: 'Download Hytale Server', description: 'Download Hytale server files', category: 'hytale-downloader' },
+  { code: PERMISSIONS.HYTALE_DL_MANAGE, name: 'Manage Hytale Downloader', description: 'Install, update, and manage hytale-downloader tool', category: 'hytale-downloader' },
 ];
 
 /**
@@ -221,6 +233,11 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, PermissionCode[]> = {
 
     // Activity (view own, not all users)
     PERMISSIONS.ACTIVITY_VIEW,
+
+    // Hytale Downloader (can auth and download, not manage)
+    PERMISSIONS.HYTALE_DL_VIEW,
+    PERMISSIONS.HYTALE_DL_AUTH,
+    PERMISSIONS.HYTALE_DL_DOWNLOAD,
   ],
 
   viewer: [
@@ -235,6 +252,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, PermissionCode[]> = {
     PERMISSIONS.NETWORKS_VIEW,
     PERMISSIONS.SETTINGS_VIEW,
     PERMISSIONS.ACTIVITY_VIEW,
+    PERMISSIONS.HYTALE_DL_VIEW,
   ],
 };
 

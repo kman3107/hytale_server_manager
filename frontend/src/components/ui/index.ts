@@ -2,6 +2,7 @@ export * from './Button';
 export * from './Card';
 export * from './Input';
 export * from './Badge';
+export * from './TokenExpiryBadge';
 export * from './StatusIndicator';
 export * from './Modal';
 export * from './ConfirmDialog';

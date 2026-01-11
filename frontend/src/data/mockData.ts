@@ -976,8 +976,8 @@ export const mockConsoleLogs: ConsoleLog[] = [
     id: 'log-004',
     timestamp: new Date(Date.now() - 597000),
     level: 'INFO',
-    source: 'Plugins',
-    message: 'Loading 8 plugins...',
+    source: 'Mods',
+    message: 'Loading 8 mods...',
   },
   {
     id: 'log-005',

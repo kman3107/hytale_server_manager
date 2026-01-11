@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Modal, ModalFooter, Button, Input } from '../ui';
 import { Server as ServerIcon } from 'lucide-react';
+import { HytaleServerDownloadSection } from '../features/HytaleServerDownloadSection';
 
 interface CreateServerModalProps {
   isOpen: boolean;
@@ -187,6 +188,12 @@ export const CreateServerModal = ({ isOpen, onClose, onSubmit }: CreateServerMod
             )}
           </div>
 
+          {/* Hytale Server Download */}
+          <HytaleServerDownloadSection
+            serverPath={formData.serverPath}
+            onVersionSet={(version) => updateField('version', version)}
+          />
+
           {/* Address and Port */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -287,7 +294,7 @@ export const CreateServerModal = ({ isOpen, onClose, onSubmit }: CreateServerMod
                     adapterType: 'java',
                     jvmArgs: '-Xms1G -Xmx2G',
                     adapterConfig: {
-                      jarFile: 'server.jar',
+                      jarFile: 'HytaleServer.jar',
                       javaPath: 'java',
                     },
                   }));
@@ -322,8 +329,8 @@ export const CreateServerModal = ({ isOpen, onClose, onSubmit }: CreateServerMod
                   </label>
                   <Input
                     type="text"
-                    placeholder="server.jar"
-                    value={formData.adapterConfig?.jarFile || 'server.jar'}
+                    placeholder="HytaleServer.jar"
+                    value={formData.adapterConfig?.jarFile || 'HytaleServer.jar'}
                     onChange={(e) => setFormData(prev => ({
                       ...prev,
                       adapterConfig: { ...prev.adapterConfig, jarFile: e.target.value },

@@ -94,7 +94,7 @@ export const ServerSettingsPage = () => {
   // Advanced settings state
   const [advancedSettings, setAdvancedSettings] = useState<AdvancedSettings>({
     jvmArgs: '-Xms1G -Xmx2G',
-    jarFile: 'server.jar',
+    jarFile: 'HytaleServer.jar',
     javaPath: 'java',
   });
 
@@ -157,7 +157,7 @@ export const ServerSettingsPage = () => {
       // Populate advanced settings
       setAdvancedSettings({
         jvmArgs: serverData.jvmArgs || '-Xms1G -Xmx2G',
-        jarFile: adapterConfig.jarFile || 'server.jar',
+        jarFile: adapterConfig.jarFile || 'HytaleServer.jar',
         javaPath: adapterConfig.javaPath || 'java',
       });
     } catch (err: any) {
@@ -342,7 +342,7 @@ export const ServerSettingsPage = () => {
 
     setAdvancedSettings({
       jvmArgs: server.jvmArgs || '-Xms1G -Xmx2G',
-      jarFile: adapterConfig.jarFile || 'server.jar',
+      jarFile: adapterConfig.jarFile || 'HytaleServer.jar',
       javaPath: adapterConfig.javaPath || 'java',
     });
 
@@ -714,7 +714,7 @@ export const ServerSettingsPage = () => {
                     setAdvancedSettings(prev => ({ ...prev, jarFile: e.target.value }));
                     setHasChanges(true);
                   }}
-                  placeholder="server.jar"
+                  placeholder="HytaleServer.jar"
                   className="font-mono"
                 />
                 <p className="text-xs text-text-light-muted dark:text-text-muted mt-1">

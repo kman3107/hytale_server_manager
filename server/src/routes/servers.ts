@@ -493,7 +493,7 @@ export function createServerRoutes(
 
   /**
    * POST /api/servers/:id/mods
-   * Install a mod/modpack - downloads from provider API and extracts to plugins folder
+   * Install a mod/modpack - downloads from provider API and extracts to mods folder
    *
    * Request body:
    * {

@@ -124,8 +124,8 @@ model ModFile {
   modId           String
 
   // File Info
-  fileName        String   // e.g., "MyPlugin.jar"
-  filePath        String   // Relative path: "plugins/MyPlugin.jar"
+  fileName        String   // e.g., "MyMod.jar"
+  filePath        String   // Relative path: "mods/MyMod.jar"
   fileSize        Int
   fileType        String   // "jar", "yml", "json", "toml"
 
@@ -572,4 +572,35 @@ model ActivityLog {
   @@index([actionCategory])
   @@index([resourceType, resourceId])
   @@index([timestamp])
+}
+
+// ==========================================
+// Hytale Downloader
+// ==========================================
+
+model HytaleDownloaderState {
+  id              String   @id @default("singleton")
+
+  // Binary Info
+  binaryVersion   String?
+  binaryPath      String?
+  lastBinaryCheck DateTime?
+
+  // Authentication Status
+  isAuthenticated Boolean  @default(false)
+  accountEmail    String?
+  authenticatedAt DateTime?
+
+  // Auto-refresh Settings
+  autoRefreshEnabled  Boolean @default(false)
+  autoRefreshInterval Int     @default(1800) // seconds, default 30 minutes
+  lastAutoRefresh     DateTime?
+
+  // Server Version Cache
+  cachedVersion   String?  // JSON: { version, patchline, checkedAt }
+
+  // Metadata
+  updatedAt       DateTime @updatedAt
+
+  @@map("hytale_downloader_state")
 }

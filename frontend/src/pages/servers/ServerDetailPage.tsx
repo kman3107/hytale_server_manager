@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Badge, StatusIndicator } from '../../components/ui';
-import { ArrowLeft, Play, Square, RotateCw, Settings, Users, Activity, Terminal, Database, Package, Trash2, ExternalLink, Plus, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Play, Square, RotateCw, Settings, Users, Activity, Terminal, Database, Package, Trash2, ExternalLink, Plus, RefreshCw, Globe } from 'lucide-react';
 import { useToast } from '../../stores/toastStore';
 import api from '../../services/api';
 import websocket from '../../services/websocket';
@@ -283,6 +283,9 @@ export const ServerDetailPage = () => {
               {server.status}...
             </Button>
           )}
+          <Button variant="ghost" icon={<Globe size={18} />} className="w-full sm:w-auto" onClick={() => navigate(`/servers/${id}/worlds`)}>
+            Worlds
+          </Button>
           <Button variant="ghost" icon={<Settings size={18} />} className="w-full sm:w-auto" onClick={() => navigate(`/servers/${id}/settings`)}>
             Settings
           </Button>
@@ -560,9 +563,12 @@ export const ServerDetailPage = () => {
           <CardDescription>Common server management tasks</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             <Button variant="secondary" icon={<Terminal size={18} />} className="w-full" onClick={() => navigate('/console')}>
               Open Console
+            </Button>
+            <Button variant="secondary" icon={<Globe size={18} />} className="w-full" onClick={() => navigate(`/servers/${id}/worlds`)}>
+              Manage Worlds
             </Button>
             <Button variant="secondary" icon={<Database size={18} />} className="w-full" onClick={() => navigate('/backups')}>
               Create Backup

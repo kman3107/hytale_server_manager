@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Input } from '../../components/ui';
 import { UpdateSettingsCard } from '../../components/settings/UpdateSettingsCard';
+import { HytaleDownloaderSettingsCard } from '../../components/settings/HytaleDownloaderSettingsCard';
 import { Save, Bell, Check, X, ExternalLink, Lock, Eye, EyeOff, HardDrive, Server, Package } from 'lucide-react';
 import { api } from '../../services/api';
 import { useModProviderStore } from '../../stores/modProviderStore';
@@ -282,6 +283,9 @@ export const SettingsPage = () => {
 
       {/* Software Updates */}
       <UpdateSettingsCard />
+
+      {/* Hytale Server Downloader */}
+      <HytaleDownloaderSettingsCard />
 
       {/* Mod Providers */}
       <Card>

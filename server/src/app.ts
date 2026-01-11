@@ -29,6 +29,7 @@ import { SettingsService } from './services/SettingsService';
 import { FtpStorageService } from './services/FtpStorageService';
 import { ActivityLogService } from './services/ActivityLogService';
 import { ModProviderService } from './services/ModProviderService';
+import { hytaleDownloaderService } from './services/HytaleDownloaderService';
 
 // Routes
 import { createServerRoutes } from './routes/servers';
@@ -43,10 +44,12 @@ import { createAlertsRoutes } from './routes/alerts';
 import { createDashboardRoutes } from './routes/dashboard';
 import activityRoutes from './routes/activity';
 import systemRoutes from './routes/system';
+import hytaleDownloaderRoutes from './routes/hytale-downloader';
 
 // WebSocket
 import { ServerEvents } from './websocket/ServerEvents';
 import { ConsoleEvents } from './websocket/ConsoleEvents';
+import { HytaleDownloaderEvents } from './websocket/HytaleDownloaderEvents';
 
 // Middleware
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
@@ -87,6 +90,7 @@ export class App {
   // WebSocket handlers
   private serverEvents: ServerEvents;
   private consoleEvents: ConsoleEvents;
+  private hytaleDownloaderEvents: HytaleDownloaderEvents;
 
   constructor() {
     this.express = express();
@@ -154,6 +158,7 @@ export class App {
     // Initialize WebSocket handlers
     this.serverEvents = new ServerEvents(this.io, this.serverService, this.consoleService);
     this.consoleEvents = new ConsoleEvents(this.io, this.serverService, this.consoleService);
+    this.hytaleDownloaderEvents = new HytaleDownloaderEvents(this.io);
 
     this.initializeMiddleware();
     this.initializeRoutes();
@@ -285,6 +290,9 @@ export class App {
     // System routes (version, health - no auth required for basic endpoints)
     this.express.use('/api/system', systemRoutes);
 
+    // Hytale Downloader routes (auth handled within router)
+    this.express.use('/api/hytale-downloader', hytaleDownloaderRoutes);
+
     // Serve static frontend files in production
     if (config.nodeEnv === 'production') {
       const publicPath = path.join(getBasePath_(), 'public');
@@ -311,6 +319,7 @@ export class App {
   private initializeWebSocket(): void {
     this.serverEvents.initialize();
     this.consoleEvents.initialize();
+    this.hytaleDownloaderEvents.initialize();
 
     this.io.on('connection', (socket) => {
       logger.info(`Client connected: ${socket.id}`);
@@ -368,6 +377,7 @@ export class App {
         // Reinitialize WebSocket event handlers
         this.serverEvents = new ServerEvents(this.io, this.serverService, this.consoleService);
         this.consoleEvents = new ConsoleEvents(this.io, this.serverService, this.consoleService);
+        this.hytaleDownloaderEvents = new HytaleDownloaderEvents(this.io);
         this.initializeWebSocket();
 
         logger.info('[App] HTTPS server created with SSL certificates');
@@ -456,6 +466,7 @@ export class App {
       await this.serverService.cleanup();
       await this.consoleEvents.cleanup();
       this.serverEvents.cleanup();
+      hytaleDownloaderService.cleanup();
       logger.info('Services cleaned up');
 
       // Disconnect from database

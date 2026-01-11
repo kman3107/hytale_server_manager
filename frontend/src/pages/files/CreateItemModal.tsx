@@ -63,7 +63,7 @@ export const CreateItemModal = ({ isOpen, onClose, onCreated, serverId, currentP
     if (type === 'file') {
       return 'e.g., config.yml, server.properties';
     }
-    return 'e.g., configs, plugins';
+    return 'e.g., configs, mods';
   };
 
   const getTitle = () => {

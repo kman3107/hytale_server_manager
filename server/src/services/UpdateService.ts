@@ -1,8 +1,8 @@
 import path from 'path';
 import fs from 'fs-extra';
 import axios from 'axios';
-import { spawn } from 'child_process';
-import { Extract } from 'unzipper';
+import { spawn, execSync } from 'child_process';
+import unzipper from 'unzipper';
 import { VERSION, getBasePath_ } from '../config';
 import logger from '../utils/logger';
 
@@ -189,14 +189,27 @@ class UpdateService {
 
       this.setStatus({ status: 'extracting', message: 'Extracting update...' });
 
-      // Extract the zip
+      // Extract the archive
       await fs.ensureDir(extractPath);
-      await new Promise<void>((resolve, reject) => {
-        fs.createReadStream(downloadPath)
-          .pipe(Extract({ path: extractPath }))
-          .on('close', resolve)
-          .on('error', reject);
-      });
+
+      if (isWindows) {
+        // Windows: Extract ZIP file
+        await new Promise<void>((resolve, reject) => {
+          fs.createReadStream(downloadPath)
+            .pipe(unzipper.Extract({ path: extractPath }))
+            .on('close', resolve)
+            .on('error', reject);
+        });
+      } else {
+        // Linux: Extract .tar.gz file using tar command
+        try {
+          execSync(`tar -xzf "${downloadPath}" -C "${extractPath}"`, {
+            stdio: 'pipe',
+          });
+        } catch (tarError: any) {
+          throw new Error(`Failed to extract tar.gz: ${tarError.message}`);
+        }
+      }
 
       // Find the extracted folder (might be nested)
       const extractedContents = await fs.readdir(extractPath);

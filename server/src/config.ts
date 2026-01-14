@@ -3,7 +3,11 @@ import path from 'path';
 import fs from 'fs-extra';
 
 // Load environment variables
-dotenv.config({ path: path.join(__dirname, '..', '.env') });
+// Use HSM_BASE_PATH in release (set by start scripts), fall back to dev path
+const envPath = process.env.HSM_BASE_PATH
+  ? path.join(process.env.HSM_BASE_PATH, '.env')
+  : path.join(__dirname, '..', '.env');
+dotenv.config({ path: envPath });
 
 // Version info - update this on each release
 export const VERSION = '0.2.12';

@@ -78,6 +78,17 @@ export class JavaServerAdapter implements IServerAdapter {
       '-jar',
     ];
 
+    // Extract -Xmx from javaArgs if provided (overrides default maxMemory)
+    const xmxArg = this.javaArgs.find((arg) => arg.toLowerCase().startsWith('-xmx'));
+    if (xmxArg) {
+      const match = xmxArg.match(/^-Xmx(\d+)([MmGg]?)$/i);
+      if (match) {
+        const value = match[1];
+        const unit = match[2]?.toUpperCase() || 'M';
+        this.maxMemory = `${value}${unit === 'G' ? 'G' : 'M'}`;
+      }
+    }
+
     // Build server args with assets path and bind address
     const bindAddress = `${config.address || '0.0.0.0'}:${config.port}`;
     const defaultServerArgs = ['--assets', this.assetsPath, '--bind', bindAddress];
@@ -354,10 +365,27 @@ export class JavaServerAdapter implements IServerAdapter {
     return { ...this.config };
   }
 
-  async updateConfig(config: Partial<ServerConfig>): Promise<void> {
+  async updateConfig(config: Partial<ServerConfig> & { jvmArgs?: string }): Promise<void> {
     this.config = { ...this.config, ...config };
     if (config.maxPlayers) {
       this.status.maxPlayers = config.maxPlayers;
+    }
+
+    // Update javaArgs if jvmArgs is provided
+    if (config.jvmArgs !== undefined) {
+      const jvmArgsList = config.jvmArgs.split(/\s+/).filter((arg) => arg.trim());
+      this.javaArgs = [...jvmArgsList, '-jar'];
+
+      // Update maxMemory for metrics display
+      const xmxArg = this.javaArgs.find((arg) => arg.toLowerCase().startsWith('-xmx'));
+      if (xmxArg) {
+        const match = xmxArg.match(/^-Xmx(\d+)([MmGg]?)$/i);
+        if (match) {
+          const value = match[1];
+          const unit = match[2]?.toUpperCase() || 'M';
+          this.maxMemory = `${value}${unit === 'G' ? 'G' : 'M'}`;
+        }
+      }
     }
   }
 

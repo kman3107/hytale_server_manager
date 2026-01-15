@@ -2,8 +2,6 @@ import express, { Express } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import path from 'path';
-import fs from 'fs';
-import { execSync } from 'child_process';
 import { PrismaClient } from '@prisma/client';
 import { Server as HTTPServer, createServer as createHTTPServer } from 'http';
 import { Server as HTTPSServer, createServer as createHTTPSServer } from 'https';
@@ -349,19 +347,6 @@ export class App {
    */
   async start(): Promise<void> {
     try {
-      const sqlitePath = config.databaseUrl.startsWith('file:')
-        ? config.databaseUrl.replace('file:', '')
-        : null;
-
-      if (sqlitePath && !fs.existsSync(sqlitePath)) {
-        logger.info(`[DB] Database not found at ${sqlitePath}. Running migrations...`);
-        execSync('npx prisma migrate deploy', {
-          cwd: getBasePath_(),
-          env: { ...process.env, DATABASE_URL: config.databaseUrl },
-          stdio: 'inherit',
-        });
-      }
-
       // Create HTTPS or HTTP server
       if (config.nodeEnv === 'production' && config.https.enabled) {
         this.certInfo = await this.loadCertificates();

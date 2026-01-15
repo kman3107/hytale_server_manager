@@ -30,6 +30,7 @@ A web-based management dashboard for Hytale game servers. Built with React, Type
 - Node.js 20+
 - pnpm (`npm install -g pnpm`)
 - Git
+- Java 17+ (required to run Hytale server processes) - https://adoptium.net/temurin/releases/
 
 ## Quick Start
 

@@ -111,9 +111,29 @@ class HytaleDownloaderService extends EventEmitter {
   }
 
   /**
-   * Extract a zip file using native system tools (handles large files)
+   * Extract a zip file using native system tools, with fallback to unzipper library
    */
   private async extractZip(zipPath: string, destPath: string): Promise<void> {
+    // Try native extraction first (better for large files)
+    try {
+      await this.extractZipNative(zipPath, destPath);
+      return;
+    } catch (err) {
+      const error = err as NodeJS.ErrnoException;
+      // If native tool not found, fall back to unzipper library
+      if (error.message?.includes('ENOENT') || error.message?.includes('not found')) {
+        logger.info('[HytaleDownloader] Native extraction tool not available, using unzipper library');
+        await this.extractZipWithLibrary(zipPath, destPath);
+        return;
+      }
+      throw err;
+    }
+  }
+
+  /**
+   * Extract using native system tools (PowerShell on Windows, unzip on Linux/Mac)
+   */
+  private extractZipNative(zipPath: string, destPath: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const isWindows = process.platform === 'win32';
 
@@ -157,6 +177,18 @@ class HytaleDownloaderService extends EventEmitter {
       proc.on('error', (err) => {
         reject(new Error(`Failed to start extraction: ${err.message}`));
       });
+    });
+  }
+
+  /**
+   * Extract using unzipper library (fallback when native tools unavailable)
+   */
+  private extractZipWithLibrary(zipPath: string, destPath: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      fs.createReadStream(zipPath)
+        .pipe(unzipper.Extract({ path: destPath }))
+        .on('close', resolve)
+        .on('error', reject);
     });
   }
 

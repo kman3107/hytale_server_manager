@@ -26,19 +26,26 @@ RUN pnpm build
 # ==========================================
 # Stage 2: Production
 # ==========================================
-FROM node:20-alpine AS production
+FROM node:20-slim AS production
 
-# Install runtime dependencies (su-exec for dropping privileges with PUID/PGID)
-# Install runtime dependencies and Java 25 (from edge/community for Hytale)
-RUN apk add --no-cache openssl unzip su-exec shadow && \
-    apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community openjdk25-jre
+# Install runtime dependencies (gosu for dropping privileges with PUID/PGID)
+# Install Java 25 from Eclipse Temurin (Adoptium)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openssl unzip gosu ca-certificates wget gnupg \
+    && mkdir -p /etc/apt/keyrings \
+    && wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor -o /etc/apt/keyrings/adoptium.gpg \
+    && echo "deb [signed-by=/etc/apt/keyrings/adoptium.gpg] https://packages.adoptium.net/artifactory/deb $(. /etc/os-release && echo $VERSION_CODENAME) main" > /etc/apt/sources.list.d/adoptium.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends temurin-25-jre \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 # Create default user (will be modified at runtime based on PUID/PGID)
 # Using 911 to avoid conflicts with existing node user (1000)
-RUN addgroup -g 911 -S hsm && \
-    adduser -S hsm -u 911 -G hsm -h /app
+RUN groupadd -g 911 hsm && \
+    useradd -u 911 -g hsm -d /app -s /bin/bash hsm
 
 # Copy built backend
 COPY --from=builder /app/packages/server/dist ./dist

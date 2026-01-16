@@ -46,10 +46,10 @@ fi
 
 # Run Prisma database setup as the hsm user
 echo "Setting up database..."
-su-exec hsm npx prisma db push --skip-generate
+gosu hsm npx prisma db push --skip-generate
 
 echo "Database ready."
 echo "Starting Hytale Server Manager..."
 
 # Execute the main command as the hsm user
-exec su-exec hsm "$@"
+exec gosu hsm "$@"

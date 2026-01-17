@@ -18,6 +18,7 @@ services:
       - JWT_REFRESH_SECRET=your-refresh-secret-here-min-32-chars-generate-openssl
       # Generate with: openssl rand -hex 16
       - SETTINGS_ENCRYPTION_KEY=your-32-char-encryption-key-here
+      - INSECURE_COOKIES=true
       # CORS origin - set to your server's URL for external access
       - CORS_ORIGIN=http://localhost:3001
       # Optional: Discord notifications

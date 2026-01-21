@@ -63,6 +63,7 @@ model Server {
   adapterType     String   @default("java") // java, hytale
   adapterConfig   String?  // JSON string for adapter-specific config
   jvmArgs         String?  // JVM arguments for Java-based servers (e.g., "-Xms1G -Xmx2G")
+  serverArgs      String?  // Server arguments passed after jar file (e.g., "--accept-early-plugins")
 
   // Version Update Tracking
   availableVersion    String?    // Latest available version from Hytale downloader

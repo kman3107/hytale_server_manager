@@ -319,6 +319,7 @@ class ApiService {
     backupType: 'local' | 'ftp';
     backupExclusions: string[] | null;
     jvmArgs: string;
+    serverArgs: string;
     adapterConfig: {
       jarFile?: string;
       assetsPath?: string;

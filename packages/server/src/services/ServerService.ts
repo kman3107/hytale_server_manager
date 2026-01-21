@@ -57,6 +57,13 @@ export class ServerService {
           javaArgs = [...jvmArgsList, '-jar'];
         }
 
+        // Parse server args string into array for the adapter
+        // e.g., "--accept-early-plugins --other-arg" -> ["--accept-early-plugins", "--other-arg"]
+        let serverArgs: string[] | undefined;
+        if (server.serverArgs) {
+          serverArgs = server.serverArgs.split(/\s+/).filter(arg => arg.trim());
+        }
+
         adapter = new JavaServerAdapter(
           serverId,
           this.prismaToConfig(server),
@@ -67,6 +74,8 @@ export class ServerService {
             ...adapterConfig,
             // Pass JVM args if configured
             javaArgs,
+            // Pass server args if configured
+            serverArgs,
             // Pass persisted RCON config if available
             rconPort: server.rconPort || undefined,
             rconPassword: server.rconPassword || undefined,
@@ -193,6 +202,7 @@ export class ServerService {
       backupType?: 'local' | 'ftp';
       backupExclusions?: string[] | null;
       jvmArgs?: string;
+      serverArgs?: string;
       adapterConfig?: Record<string, unknown>;
     }
   ): Promise<PrismaServer> {
@@ -215,6 +225,7 @@ export class ServerService {
         : null;
     }
     if (data.jvmArgs !== undefined) updateData.jvmArgs = data.jvmArgs;
+    if (data.serverArgs !== undefined) updateData.serverArgs = data.serverArgs;
 
     // Handle adapterConfig - merge with existing config
     if (data.adapterConfig !== undefined) {

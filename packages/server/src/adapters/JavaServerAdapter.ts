@@ -92,7 +92,10 @@ export class JavaServerAdapter implements IServerAdapter {
     // Build server args with assets path and bind address
     const bindAddress = `${config.address || '0.0.0.0'}:${config.port}`;
     const defaultServerArgs = ['--assets', this.assetsPath, '--bind', bindAddress];
-    this.serverArgs = adapterConfig?.serverArgs || defaultServerArgs;
+    // Append custom server args to defaults (don't replace)
+    this.serverArgs = adapterConfig?.serverArgs
+      ? [...defaultServerArgs, ...adapterConfig.serverArgs]
+      : defaultServerArgs;
 
     this.status = {
       serverId,

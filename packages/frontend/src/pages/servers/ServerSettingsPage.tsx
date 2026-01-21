@@ -21,6 +21,7 @@ interface ServerData {
   backupType: string;
   backupExclusions: string | null;
   jvmArgs: string | null;
+  serverArgs: string | null;
   adapterConfig: string | null;
   adapterType: string;
 }
@@ -46,6 +47,7 @@ interface StorageSettings {
 
 interface AdvancedSettings {
   jvmArgs: string;
+  serverArgs: string;
   jarFile: string;
   assetsPath: string;
   javaPath: string;
@@ -97,6 +99,7 @@ export const ServerSettingsPage = () => {
   // Advanced settings state
   const [advancedSettings, setAdvancedSettings] = useState<AdvancedSettings>({
     jvmArgs: '-Xms1G -Xmx2G',
+    serverArgs: '',
     jarFile: 'Server/HytaleServer.jar',
     assetsPath: '../Assets.zip',
     javaPath: 'java',
@@ -162,6 +165,7 @@ export const ServerSettingsPage = () => {
       // Populate advanced settings
       setAdvancedSettings({
         jvmArgs: serverData.jvmArgs || '-Xms1G -Xmx2G',
+        serverArgs: serverData.serverArgs || '',
         jarFile: adapterConfig.jarFile || 'Server/HytaleServer.jar',
         assetsPath: adapterConfig.assetsPath || '../Assets.zip',
         javaPath: adapterConfig.javaPath || 'java',
@@ -282,6 +286,7 @@ export const ServerSettingsPage = () => {
       } else if (activeTab === 'advanced') {
         updateData = {
           jvmArgs: advancedSettings.jvmArgs,
+          serverArgs: advancedSettings.serverArgs,
           adapterConfig: {
             jarFile: advancedSettings.jarFile,
             assetsPath: advancedSettings.assetsPath,
@@ -351,6 +356,7 @@ export const ServerSettingsPage = () => {
 
     setAdvancedSettings({
       jvmArgs: server.jvmArgs || '-Xms1G -Xmx2G',
+      serverArgs: server.serverArgs || '',
       jarFile: adapterConfig.jarFile || 'Server/HytaleServer.jar',
       assetsPath: adapterConfig.assetsPath || '../Assets.zip',
       javaPath: adapterConfig.javaPath || 'java',
@@ -780,6 +786,62 @@ export const ServerSettingsPage = () => {
                 <p className="text-xs text-text-light-muted dark:text-text-muted mt-1">
                   JVM arguments passed to the Java process. Common options: -Xms (min memory), -Xmx (max memory).
                 </p>
+              </div>
+
+              {/* Server Arguments */}
+              <div>
+                <label className="block text-sm text-text-light-muted dark:text-text-muted mb-2">Server Arguments</label>
+                <p className="text-xs text-text-light-muted dark:text-text-muted mb-2">
+                  Arguments passed to the server after the jar file (e.g., --accept-early-plugins)
+                </p>
+                <Input
+                  value={advancedSettings.serverArgs}
+                  onChange={(e) => {
+                    setAdvancedSettings(prev => ({ ...prev, serverArgs: e.target.value }));
+                    setHasChanges(true);
+                  }}
+                  placeholder="--accept-early-plugins --other-arg"
+                  className="font-mono"
+                />
+              </div>
+
+              {/* Command Preview */}
+              <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                <label className="block text-sm font-medium text-text-light-muted dark:text-text-muted mb-2">
+                  Command Preview
+                </label>
+                <p className="text-xs text-text-light-muted dark:text-text-muted mb-3">
+                  This is how the server start command will look with your current settings:
+                </p>
+                <div className="font-mono text-xs bg-gray-200 dark:bg-gray-900 rounded p-3 overflow-x-auto">
+                  <span className="text-blue-600 dark:text-blue-400">{advancedSettings.javaPath || 'java'}</span>
+                  {' '}
+                  <span className="text-green-600 dark:text-green-400" title="JVM Arguments">{advancedSettings.jvmArgs || '-Xms1G -Xmx2G'}</span>
+                  {' '}
+                  <span className="text-text-light-primary dark:text-text-primary">-jar {advancedSettings.jarFile || 'Server/HytaleServer.jar'}</span>
+                  {' '}
+                  <span className="text-purple-600 dark:text-purple-400">--assets {advancedSettings.assetsPath || '../Assets.zip'} --bind {networkSettings.address}:{networkSettings.port}</span>
+                  {advancedSettings.serverArgs && (
+                    <>
+                      {' '}
+                      <span className="text-orange-600 dark:text-orange-400" title="Server Arguments">{advancedSettings.serverArgs}</span>
+                    </>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-xs">
+                  <span className="flex items-center gap-1">
+                    <span className="w-3 h-3 rounded bg-green-600 dark:bg-green-400"></span>
+                    <span className="text-text-light-muted dark:text-text-muted">JVM Arguments</span>
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-3 h-3 rounded bg-purple-600 dark:bg-purple-400"></span>
+                    <span className="text-text-light-muted dark:text-text-muted">Default Server Args</span>
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-3 h-3 rounded bg-orange-600 dark:bg-orange-400"></span>
+                    <span className="text-text-light-muted dark:text-text-muted">Custom Server Args</span>
+                  </span>
+                </div>
               </div>
             </div>
           </CardContent>

@@ -146,6 +146,21 @@ export class BackupService {
       // Resolve server path to absolute path
       const absoluteServerPath = path.resolve(server.serverPath);
 
+      // Get Assets.zip path from adapter config (for Hytale servers)
+      let assetsZipPath: string | null = null;
+      if (server.adapterConfig) {
+        try {
+          const adapterConfig = JSON.parse(server.adapterConfig);
+          const assetsPath = adapterConfig.assetsPath || '../Assets.zip';
+          // Resolve relative to server's JAR location (inside server directory)
+          const jarFile = adapterConfig.jarFile || 'Server/HytaleServer.jar';
+          const jarDir = path.dirname(path.join(absoluteServerPath, jarFile));
+          assetsZipPath = path.resolve(jarDir, assetsPath);
+        } catch (e) {
+          logger.warn('Failed to parse adapterConfig for assets path:', e);
+        }
+      }
+
       // Parse server-specific exclusion patterns
       let excludePatterns: string[] = [];
       if (server.backupExclusions) {
@@ -174,10 +189,25 @@ export class BackupService {
         logger.info(`Using exclusion patterns: ${excludePatterns.join(', ')}`);
       }
 
+      // Build additional files list (e.g., Assets.zip that may be outside server directory)
+      const additionalFiles: { absolutePath: string; archiveName: string }[] = [];
+      if (assetsZipPath && fs.existsSync(assetsZipPath)) {
+        // Only add if it's outside the server directory (not already included)
+        const normalizedAssetsPath = path.normalize(assetsZipPath);
+        const normalizedServerPath = path.normalize(absoluteServerPath);
+        if (!normalizedAssetsPath.startsWith(normalizedServerPath + path.sep)) {
+          additionalFiles.push({
+            absolutePath: assetsZipPath,
+            archiveName: 'Assets.zip', // Store at root of archive
+          });
+          logger.info(`Including external Assets.zip in backup: ${assetsZipPath}`);
+        }
+      }
+
       // Create zip archive locally
       logger.info(`Creating backup archive: ${localFilePath}`);
       logger.info(`Source server path: ${absoluteServerPath}`);
-      const result = await this.createZipArchive(absoluteServerPath, localFilePath, excludePatterns);
+      const result = await this.createZipArchive(absoluteServerPath, localFilePath, excludePatterns, additionalFiles);
 
       // If using FTP, upload and delete local file
       if (useFtp) {
@@ -276,7 +306,12 @@ export class BackupService {
   /**
    * Create a zip archive of a directory with retry logic for locked files
    */
-  private async createZipArchive(sourcePath: string, outputPath: string, excludePatterns: string[] = []): Promise<BackupResult> {
+  private async createZipArchive(
+    sourcePath: string,
+    outputPath: string,
+    excludePatterns: string[] = [],
+    additionalFiles?: { absolutePath: string; archiveName: string }[]
+  ): Promise<BackupResult> {
     // Validate source directory exists
     if (!fs.existsSync(sourcePath)) {
       throw new Error(`Source directory does not exist: ${sourcePath}`);
@@ -372,6 +407,23 @@ export class BackupService {
             backedUpFiles++;
           } else {
             skippedFiles.push(`${relativePath} (locked/inaccessible)`);
+          }
+        }
+
+        // Add additional files (like Assets.zip) if provided
+        if (additionalFiles) {
+          for (const file of additionalFiles) {
+            if (fs.existsSync(file.absolutePath)) {
+              const added = await this.addFileToArchiveWithRetry(archive, file.absolutePath, file.archiveName);
+              if (added) {
+                backedUpFiles++;
+                totalFiles++;
+                logger.info(`Added additional file to backup: ${file.archiveName}`);
+              } else {
+                skippedFiles.push(`${file.archiveName} (locked/inaccessible)`);
+                totalFiles++;
+              }
+            }
           }
         }
 

@@ -754,6 +754,66 @@ class ApiService {
     return `${this.baseUrl}/api/servers/${serverId}/files/download?path=${encodeURIComponent(path)}`;
   }
 
+  async uploadFile(
+    serverId: string,
+    filePath: string,
+    file: File,
+    autoExtractZip: boolean = true,
+    onProgress?: (progress: number) => void
+  ) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('path', filePath);
+    formData.append('autoExtractZip', String(autoExtractZip));
+
+    return new Promise<{ fileName: string; size: number; extractedFiles: string[] }>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+
+      // Track upload progress
+      if (onProgress) {
+        xhr.upload.addEventListener('progress', (event) => {
+          if (event.lengthComputable) {
+            const progress = (event.loaded / event.total) * 100;
+            onProgress(progress);
+          }
+        });
+      }
+
+      xhr.addEventListener('load', () => {
+        if (xhr.status === 401) {
+          reject(new AuthError('Session expired. Please login again.', 'TOKEN_EXPIRED', 401));
+        } else if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const response = JSON.parse(xhr.responseText);
+            resolve(response);
+          } catch {
+            reject(new Error('Failed to parse upload response'));
+          }
+        } else {
+          try {
+            const error = JSON.parse(xhr.responseText);
+            reject(new Error(error.error || 'Upload failed'));
+          } catch {
+            reject(new Error(`Upload failed with status ${xhr.status}`));
+          }
+        }
+      });
+
+      xhr.addEventListener('error', () => {
+        reject(new Error('Upload failed'));
+      });
+
+      xhr.addEventListener('abort', () => {
+        reject(new Error('Upload cancelled'));
+      });
+
+      xhr.open('POST', `${this.baseUrl}/api/servers/${serverId}/files/upload`);
+      xhr.withCredentials = true;
+
+      xhr.send(formData);
+    });
+  }
+
   // ===================================
   // Performance Metrics
   // ===================================

@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Badge, Input } from '../../components/ui';
 import {
   Folder, File, FileText, FileCode, FileImage, FileArchive,
-  ChevronRight, Home, Plus, Download, Edit, Trash2, Search, FolderPlus
+  ChevronRight, Home, Plus, Download, Edit, Trash2, Search, FolderPlus, Upload
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { FileEditorModal } from './FileEditorModal';
 import { CreateItemModal } from './CreateItemModal';
+import { UploadFileModal } from './UploadFileModal';
 
 interface Server {
   id: string;
@@ -38,6 +39,7 @@ export const FileManagerPage = () => {
   const [editingFile, setEditingFile] = useState<FileItem | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [createType, setCreateType] = useState<'file' | 'directory'>('file');
+  const [showUploadModal, setShowUploadModal] = useState(false);
 
   // Disk usage
   const [diskUsage, setDiskUsage] = useState({ total: 0, used: 0 });
@@ -253,6 +255,9 @@ export const FileManagerPage = () => {
             <Button variant="secondary" size="sm" icon={<FolderPlus size={16} />} onClick={handleCreateDirectory}>
               New Folder
             </Button>
+            <Button variant="primary" size="sm" icon={<Upload size={16} />} onClick={() => setShowUploadModal(true)}>
+              Upload
+            </Button>
           </div>
         )}
       </div>
@@ -449,6 +454,15 @@ export const FileManagerPage = () => {
         serverId={selectedServer}
         currentPath={currentPath}
         type={createType}
+      />
+
+      {/* Upload File Modal */}
+      <UploadFileModal
+        isOpen={showUploadModal}
+        onClose={() => setShowUploadModal(false)}
+        onSuccess={fetchFiles}
+        serverId={selectedServer}
+        currentPath={currentPath}
       />
     </div>
   );

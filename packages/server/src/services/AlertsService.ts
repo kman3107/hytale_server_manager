@@ -84,19 +84,13 @@ export class AlertsService {
         await this.discordService.notify('alert_critical', {
           serverName: server?.name,
           reason: data.title,
-          details: {
-            message: data.message,
-            type: data.type,
-          },
+          details: data.message || data.title,
         });
       } else if (data.severity === 'warning') {
         await this.discordService.notify('alert_warning', {
           serverName: server?.name,
           reason: data.title,
-          details: {
-            message: data.message,
-            type: data.type,
-          },
+          details: data.message || data.title,
         });
       }
 

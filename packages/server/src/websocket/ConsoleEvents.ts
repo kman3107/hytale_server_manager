@@ -124,7 +124,7 @@ export class ConsoleEvents {
 
           // Always set up log streaming (in case adapter was recreated)
           const logHandler = async (log: LogEntry) => {
-            logger.debug(`[ConsoleEvents] Emitting log to console:${serverId}`);
+            //logger.debug(`[ConsoleEvents] Emitting log to console:${serverId}`);
             // Emit log to all subscribed clients
             consoleNamespace.to(`console:${serverId}`).emit('log', {
               serverId,

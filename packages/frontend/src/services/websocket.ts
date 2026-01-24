@@ -34,6 +34,9 @@ class WebSocketService {
       transports: ['websocket', 'polling'],
       // Use function to always get fresh token on reconnect
       auth: (cb) => cb({ token: this.getToken() }),
+      reconnection: true,
+      reconnectionAttempts: env.websocket.reconnectAttempts,
+      reconnectionDelay: env.websocket.reconnectDelay,
     });
 
     this.serversSocket.on('connect', () => {
@@ -57,10 +60,10 @@ class WebSocketService {
       socket.emit('subscribe', { serverId });
     };
 
+    // Use 'on' instead of 'once' so subscriptions are re-established on reconnect
+    socket.on('connect', subscribe);
     if (socket.connected) {
       subscribe();
-    } else {
-      socket.once('connect', subscribe);
     }
 
     if (callbacks.onStatus) {
@@ -102,6 +105,9 @@ class WebSocketService {
       transports: ['websocket', 'polling'],
       // Use function to always get fresh token on reconnect
       auth: (cb) => cb({ token: this.getToken() }),
+      reconnection: true,
+      reconnectionAttempts: env.websocket.reconnectAttempts,
+      reconnectionDelay: env.websocket.reconnectDelay,
     });
 
     this.consoleSocket.on('connect', () => {
@@ -127,10 +133,10 @@ class WebSocketService {
       socket.emit('subscribe', { serverId });
     };
 
+    // Use 'on' instead of 'once' so subscriptions are re-established on reconnect
+    socket.on('connect', subscribe);
     if (socket.connected) {
       subscribe();
-    } else {
-      socket.once('connect', subscribe);
     }
 
     if (callbacks.onLog) {
@@ -188,6 +194,9 @@ class WebSocketService {
     this.serverUpdatesSocket = io(`${this.baseUrl}/server-updates`, {
       transports: ['websocket', 'polling'],
       auth: (cb) => cb({ token: this.getToken() }),
+      reconnection: true,
+      reconnectionAttempts: env.websocket.reconnectAttempts,
+      reconnectionDelay: env.websocket.reconnectDelay,
     });
 
     this.serverUpdatesSocket.on('connect', () => {
@@ -216,10 +225,10 @@ class WebSocketService {
       socket.emit('subscribe', { serverId });
     };
 
+    // Use 'on' instead of 'once' so subscriptions are re-established on reconnect
+    socket.on('connect', subscribe);
     if (socket.connected) {
       subscribe();
-    } else {
-      socket.once('connect', subscribe);
     }
 
     if (callbacks.onStarted) {

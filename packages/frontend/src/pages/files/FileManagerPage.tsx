@@ -1,12 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Badge, Input } from '../../components/ui';
 import {
   Folder, File, FileText, FileCode, FileImage, FileArchive,
-  ChevronRight, Home, Plus, Download, Edit, Trash2, Search, FolderPlus
+  ChevronRight, Home, Plus, Download, Edit, Trash2, Search, FolderPlus, Upload
 } from 'lucide-react';
-import { api } from '../../services/api';
+import { api, ApiError } from '../../services/api';
+import { AuthError } from '../../services/auth';
 import { FileEditorModal } from './FileEditorModal';
 import { CreateItemModal } from './CreateItemModal';
+import { UploadFileModal } from './UploadFileModal';
 
 interface Server {
   id: string;
@@ -38,36 +40,12 @@ export const FileManagerPage = () => {
   const [editingFile, setEditingFile] = useState<FileItem | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [createType, setCreateType] = useState<'file' | 'directory'>('file');
+  const [showUploadModal, setShowUploadModal] = useState(false);
 
   // Disk usage
   const [diskUsage, setDiskUsage] = useState({ total: 0, used: 0 });
 
-  useEffect(() => {
-    fetchServers();
-  }, []);
-
-  useEffect(() => {
-    if (selectedServer) {
-      fetchFiles();
-      fetchDiskUsage();
-    }
-  }, [selectedServer, currentPath]);
-
-  const fetchServers = async () => {
-    try {
-      const data = await api.getServers<Server>();
-      setServers(data.map((s) => ({ id: s.id, name: s.name, status: s.status })));
-
-      // Select first server by default
-      if (data.length > 0 && !selectedServer) {
-        setSelectedServer(data[0].id);
-      }
-    } catch (error) {
-      console.error('Error fetching servers:', error);
-    }
-  };
-
-  const fetchFiles = async () => {
+  const fetchFiles = useCallback(async () => {
     if (!selectedServer) return;
 
     try {
@@ -79,9 +57,9 @@ export const FileManagerPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedServer, currentPath]);
 
-  const fetchDiskUsage = async () => {
+  const fetchDiskUsage = useCallback(async () => {
     if (!selectedServer) return;
 
     try {
@@ -90,7 +68,31 @@ export const FileManagerPage = () => {
     } catch (error) {
       console.error('Error fetching disk usage:', error);
     }
-  };
+  }, [selectedServer]);
+
+  const fetchServers = useCallback(async () => {
+    try {
+      const data = await api.getServers<Server>();
+      setServers(data.map((s) => ({ id: s.id, name: s.name, status: s.status })));
+
+      if (data.length > 0 && !selectedServer) {
+        setSelectedServer(data[0].id);
+      }
+    } catch (error) {
+      console.error('Error fetching servers:', error);
+    }
+  }, [selectedServer]);
+
+  useEffect(() => {
+    fetchServers();
+  }, [fetchServers]);
+
+  useEffect(() => {
+    if (selectedServer) {
+      fetchFiles();
+      fetchDiskUsage();
+    }
+  }, [selectedServer, currentPath, fetchFiles, fetchDiskUsage]);
 
   const handleSearch = async () => {
     if (!selectedServer || !searchQuery.trim()) return;
@@ -145,8 +147,14 @@ export const FileManagerPage = () => {
     try {
       await api.deleteFile(selectedServer, item.path);
       await fetchFiles();
-    } catch (error: any) {
-      alert(`Error deleting ${item.type}: ${error.message}`);
+    } catch (error: unknown) {
+      let message = 'An unexpected error occurred';
+      if (error instanceof ApiError || error instanceof AuthError || error instanceof Error) {
+        message = error.message;
+      } else if (typeof error === 'string') {
+        message = error;
+      }
+      alert(`Error deleting ${item.type}: ${message}`);
     }
   };
 
@@ -252,6 +260,9 @@ export const FileManagerPage = () => {
             </Button>
             <Button variant="secondary" size="sm" icon={<FolderPlus size={16} />} onClick={handleCreateDirectory}>
               New Folder
+            </Button>
+            <Button variant="secondary" size="sm" icon={<Upload size={16} />} onClick={() => setShowUploadModal(true)}>
+              Upload
             </Button>
           </div>
         )}
@@ -449,6 +460,15 @@ export const FileManagerPage = () => {
         serverId={selectedServer}
         currentPath={currentPath}
         type={createType}
+      />
+
+      {/* Upload File Modal */}
+      <UploadFileModal
+        isOpen={showUploadModal}
+        onClose={() => setShowUploadModal(false)}
+        onSuccess={fetchFiles}
+        serverId={selectedServer}
+        currentPath={currentPath}
       />
     </div>
   );

@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import multer from 'multer';
 import { ServerService } from '../services/ServerService';
 import { ConsoleService } from '../services/ConsoleService';
 import { ModService } from '../services/ModService';
@@ -1242,6 +1243,79 @@ export function createServerRoutes(
       return res.status(500).json({ error: error.message || 'Failed to download file' });
     }
   });
+
+  /**
+   * POST /api/servers/:id/files/upload
+   * Upload a file with optional ZIP extraction
+   */
+  const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+      fileSize: require('../config').default.maxFileUploadSize,
+      files: 1,
+    },
+    fileFilter: (_req, _file, cb) => {
+      // Currently all file types are allowed to upload.
+      // Maybe it makes sense to only allow specific file types (maybe configurable?)
+      // That would need to happen here.
+      cb(null, true);
+    },
+  });
+
+  const handleUpload = (req: Request, res: Response, next: Function) => {
+    upload.single('file')(req, res, (err: any) => {
+      if (err) {
+        if (err instanceof multer.MulterError) {
+          if (err.code === 'LIMIT_FILE_SIZE') {
+            const config = require('../config').default;
+            return res.status(413).json({
+              error: `File too large. Maximum size is ${config.maxFileUploadSize / (1024 * 1024)}MB`,
+            });
+          }
+          return res.status(400).json({ error: err.message });
+        }
+
+        return res.status(400).json({ error: err.message || 'File upload failed' });
+      }
+      return next();
+    });
+  };
+
+  router.post(
+    '/:id/files/upload',
+    requirePermission(PERMISSIONS.SERVERS_FILES_WRITE),
+    handleUpload,
+    async (req: Request, res: Response) => {
+      try {
+        const { path: filePath } = req.body;
+
+        let autoExtractZip = true;
+        if (req.body.autoExtractZip !== undefined) {
+          autoExtractZip = req.body.autoExtractZip !== 'false' && req.body.autoExtractZip !== false;
+        }
+
+        if (!filePath) {
+          return res.status(400).json({ error: 'File path is required' });
+        }
+
+        if (!req.file || !req.file.buffer) {
+          return res.status(400).json({ error: 'No file provided' });
+        }
+
+        const result = await fileService.uploadFileWithExtraction(
+          req.params.id,
+          filePath,
+          req.file.buffer,
+          autoExtractZip
+        );
+
+        return res.status(201).json(result);
+      } catch (error: any) {
+        logger.error('Error uploading file:', error);
+        return res.status(500).json({ error: error.message || 'Failed to upload file' });
+      }
+    }
+  );
 
   // ============================================
   // Performance Metrics

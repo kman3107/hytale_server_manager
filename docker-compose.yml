@@ -11,6 +11,7 @@ services:
       - PUID=1000
       - PGID=1000
       - NODE_ENV=production
+      - NODE_OPTIONS=--max-old-space-size=1536
       - PORT=3001
       - HOST=0.0.0.0
       # Required secrets - generate your own!
@@ -49,6 +50,13 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'         # Limit to 2 CPU cores
+          memory: 16G          # Limit to 16GB RAM
+        reservations:
+          memory: 2G        # Reserve minimum 2GB RAM
 
 volumes:
   hsm-database:

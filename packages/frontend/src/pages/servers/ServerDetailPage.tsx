@@ -41,6 +41,14 @@ interface ServerStatus {
   uptime: number;
 }
 
+interface ModFile {
+  id: string;
+  fileName: string;
+  filePath: string;
+  fileSize: number;
+  fileType: string;
+}
+
 interface InstalledMod {
   id: string;
   serverId: string;
@@ -50,11 +58,20 @@ interface InstalledMod {
   versionId: string;
   versionName: string;
   classification: string;
-  filePath: string;
-  fileSize: number;
+  archiveSize: number;
+  files: ModFile[];
   enabled: boolean;
   installedAt: string;
 }
+
+const getModDisplaySize = (mod: InstalledMod): number => {
+  // If files exist (extracted from archive), sum their sizes
+  if (mod.files && mod.files.length > 0) {
+    return mod.files.reduce((sum, file) => sum + file.fileSize, 0);
+  }
+  // Fall back to archive size
+  return mod.archiveSize || 0;
+};
 
 export const ServerDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -527,7 +544,7 @@ export const ServerDetailPage = () => {
                       <div className="flex items-center gap-3 text-sm text-text-light-muted dark:text-text-muted">
                         <span>v{mod.versionName}</span>
                         <span>•</span>
-                        <span>{(mod.fileSize / 1024).toFixed(1)} KB</span>
+                        <span>{(getModDisplaySize(mod) / 1024).toFixed(1)} KB</span>
                         <span>•</span>
                         <span>Installed {new Date(mod.installedAt).toLocaleDateString()}</span>
                       </div>

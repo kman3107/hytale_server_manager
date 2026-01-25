@@ -85,6 +85,7 @@ ENV LOGS_PATH=/app/data/logs
 ENV CERTS_PATH=/app/data/certs
 ENV HTTPS_ENABLED=false
 ENV CORS_ORIGIN=http://localhost:3001
+ENV IS_DOCKER=true
 
 # Expose port
 EXPOSE 3001

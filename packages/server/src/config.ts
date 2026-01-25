@@ -31,6 +31,7 @@ export interface AppConfig {
   version: string;
   versionName: string;
   nodeEnv: string;
+  isDocker: boolean;
 
   // Server
   port: number;
@@ -121,6 +122,7 @@ const defaults: AppConfig = {
   version: VERSION,
   versionName: VERSION_NAME,
   nodeEnv: 'production',
+  isDocker: process.env.IS_DOCKER === 'true',
 
   // Server
   port: 3001,

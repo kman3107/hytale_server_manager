@@ -21,9 +21,10 @@ export interface UpdateInfo {
   releaseNotes?: string;
   publishedAt?: string;
   downloadUrl?: string;
-  scripts: UpdateScripts;
+  scripts?: UpdateScripts;
   message?: string;
   checkedAt?: string;
+  isDocker?: boolean;
 }
 
 interface UpdateState {

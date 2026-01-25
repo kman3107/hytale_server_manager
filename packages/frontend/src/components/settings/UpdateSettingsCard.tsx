@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Button } from '../ui';
-import { Download, RefreshCw, Check, ExternalLink, Info, X, Play, Loader2, AlertTriangle } from 'lucide-react';
+import { Download, RefreshCw, Check, ExternalLink, Info, X, Play, Loader2, AlertTriangle, Container } from 'lucide-react';
 import { useUpdateStore } from '../../stores/updateStore';
 import { api } from '../../services/api';
 
@@ -82,21 +82,51 @@ export const UpdateSettingsCard = () => {
           </div>
         )}
 
-        {/* Version Info */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-          <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-            <p className="text-sm text-text-light-muted dark:text-text-muted mb-1">Current Version</p>
-            <p className="text-lg font-semibold text-text-light-primary dark:text-text-primary">
-              v{updateInfo?.currentVersion || '...'}
-            </p>
+        {/* Docker Mode - Simplified Version Display */}
+        {updateInfo?.isDocker ? (
+          <div className="space-y-4">
+            <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+              <div className="flex items-center gap-3">
+                <Container size={24} className="text-blue-400" />
+                <div>
+                  <p className="text-lg font-semibold text-text-light-primary dark:text-text-primary">
+                    v{updateInfo.currentVersion}
+                  </p>
+                  <p className="text-sm text-text-light-muted dark:text-text-muted">
+                    Running in Docker
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 p-4 bg-blue-500/10 text-blue-400 rounded-lg">
+              <Info size={20} className="flex-shrink-0 mt-0.5" />
+              <div className="text-sm">
+                <p className="font-medium mb-1">Updating Docker Deployments</p>
+                <ul className="list-disc list-inside space-y-1 text-blue-300">
+                  <li>Pull the latest image: <code className="bg-gray-800 px-1 rounded">docker pull ghcr.io/your-repo/hsm:latest</code></li>
+                  <li>Restart your container with the new image</li>
+                  <li>Your data is preserved in mounted volumes</li>
+                </ul>
+              </div>
+            </div>
           </div>
-          <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-            <p className="text-sm text-text-light-muted dark:text-text-muted mb-1">Latest Version</p>
-            <p className="text-lg font-semibold text-text-light-primary dark:text-text-primary">
-              {updateInfo?.latestVersion ? `v${updateInfo.latestVersion}` : isLoading ? 'Checking...' : 'Unknown'}
-            </p>
-          </div>
-        </div>
+        ) : (
+          <>
+            {/* Version Info */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                <p className="text-sm text-text-light-muted dark:text-text-muted mb-1">Current Version</p>
+                <p className="text-lg font-semibold text-text-light-primary dark:text-text-primary">
+                  v{updateInfo?.currentVersion || '...'}
+                </p>
+              </div>
+              <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                <p className="text-sm text-text-light-muted dark:text-text-muted mb-1">Latest Version</p>
+                <p className="text-lg font-semibold text-text-light-primary dark:text-text-primary">
+                  {updateInfo?.latestVersion ? `v${updateInfo.latestVersion}` : isLoading ? 'Checking...' : 'Unknown'}
+                </p>
+              </div>
+            </div>
 
         {/* Update Available Section */}
         {updateInfo?.updateAvailable && (
@@ -234,43 +264,47 @@ export const UpdateSettingsCard = () => {
           </div>
         )}
 
-        {/* Info Box */}
-        <div className="flex items-start gap-3 p-4 bg-blue-500/10 text-blue-400 rounded-lg">
-          <Info size={20} className="flex-shrink-0 mt-0.5" />
-          <div className="text-sm">
-            <p className="font-medium mb-1">How Updates Work</p>
-            <ul className="list-disc list-inside space-y-1 text-blue-300">
-              <li>Click "Update Now" to automatically download and install</li>
-              <li>The server will stop, update, and restart automatically</li>
-              <li>Your configuration and data are preserved</li>
-              <li>You'll be disconnected briefly during the restart</li>
-            </ul>
-          </div>
-        </div>
+            {/* Info Box */}
+            <div className="flex items-start gap-3 p-4 bg-blue-500/10 text-blue-400 rounded-lg">
+              <Info size={20} className="flex-shrink-0 mt-0.5" />
+              <div className="text-sm">
+                <p className="font-medium mb-1">How Updates Work</p>
+                <ul className="list-disc list-inside space-y-1 text-blue-300">
+                  <li>Click "Update Now" to automatically download and install</li>
+                  <li>The server will stop, update, and restart automatically</li>
+                  <li>Your configuration and data are preserved</li>
+                  <li>You'll be disconnected briefly during the restart</li>
+                </ul>
+              </div>
+            </div>
+          </>
+        )}
       </CardContent>
-      <CardFooter className="flex items-center justify-between flex-wrap gap-4">
-        <div className="text-sm text-text-light-muted dark:text-text-muted">
-          {lastChecked && (
-            <span>Last checked: {lastChecked.toLocaleString()}</span>
-          )}
-        </div>
-        <div className="flex gap-3">
-          {dismissed && updateInfo?.updateAvailable && (
-            <Button variant="ghost" size="sm" onClick={resetDismiss}>
-              Show Update
+      {!updateInfo?.isDocker && (
+        <CardFooter className="flex items-center justify-between flex-wrap gap-4">
+          <div className="text-sm text-text-light-muted dark:text-text-muted">
+            {lastChecked && (
+              <span>Last checked: {lastChecked.toLocaleString()}</span>
+            )}
+          </div>
+          <div className="flex gap-3">
+            {dismissed && updateInfo?.updateAvailable && (
+              <Button variant="ghost" size="sm" onClick={resetDismiss}>
+                Show Update
+              </Button>
+            )}
+            <Button
+              variant="secondary"
+              onClick={() => checkForUpdates(true)}
+              disabled={isLoading}
+              loading={isLoading}
+            >
+              <RefreshCw size={16} />
+              {isLoading ? 'Checking...' : 'Check for Updates'}
             </Button>
-          )}
-          <Button
-            variant="secondary"
-            onClick={() => checkForUpdates(true)}
-            disabled={isLoading}
-            loading={isLoading}
-          >
-            <RefreshCw size={16} />
-            {isLoading ? 'Checking...' : 'Check for Updates'}
-          </Button>
-        </div>
-      </CardFooter>
+          </div>
+        </CardFooter>
+      )}
     </Card>
   );
 };

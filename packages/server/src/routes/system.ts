@@ -134,6 +134,18 @@ router.get('/updates/check', async (_req: Request, res: Response) => {
   try {
     const { githubRepo } = config.updates;
 
+    // When running in Docker, skip GitHub API and return simplified response
+    if (config.isDocker) {
+      res.json({
+        updateAvailable: false,
+        currentVersion: VERSION,
+        isDocker: true,
+        message: 'Running in Docker - update via container image',
+        checkedAt: new Date().toISOString(),
+      });
+      return;
+    }
+
     if (!githubRepo || githubRepo === 'yourusername/hytale-server-manager') {
       res.json({
         updateAvailable: false,

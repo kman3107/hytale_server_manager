@@ -44,9 +44,9 @@ if [ -z "$SETTINGS_ENCRYPTION_KEY" ]; then
     export SETTINGS_ENCRYPTION_KEY=$(head -c 16 /dev/urandom | od -An -tx1 | tr -d ' \n' | head -c 32)
 fi
 
-# Run Prisma database migrations as the hsm user
-echo "Running database migrations..."
-gosu hsm npx prisma migrate deploy
+# Run Prisma database setup as the hsm user
+echo "Setting up database..."
+gosu hsm npx prisma db push --skip-generate --accept-data-loss
 
 echo "Database ready."
 echo "Starting Hytale Server Manager..."

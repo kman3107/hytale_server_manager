@@ -58,7 +58,10 @@ export interface HytaleWorldConfig {
 /** Fields that cannot be edited (immutable) */
 const IMMUTABLE_FIELDS = ['Version', 'UUID', 'Seed', 'WorldGen', 'GameplayConfig', 'WorldMap', 'ChunkStorage', 'ChunkConfig', 'ResourceStorage', 'Plugin', 'RequiredPlugins'];
 
-/** Fields that are allowed to be edited */
+/**
+ * Known editable fields (for documentation/reference only).
+ * Filtering uses IMMUTABLE_FIELDS blacklist - all other fields are allowed.
+ */
 const EDITABLE_FIELDS = [
   'IsPvpEnabled',
   'IsFallDamageEnabled',
@@ -619,9 +622,8 @@ export class WorldsService {
         logger.warn(`Attempted to modify immutable field: ${key}`);
         continue;
       }
-      if (EDITABLE_FIELDS.includes(key)) {
-        filteredUpdates[key] = updates[key];
-      }
+      // Allow all non-immutable fields (including custom fields from JSON editor)
+      filteredUpdates[key] = updates[key];
     }
 
     // Merge updates with existing config

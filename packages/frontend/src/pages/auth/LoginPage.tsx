@@ -319,7 +319,7 @@ export const LoginPage = () => {
         {/* Footer */}
         <div className="mt-6 text-center text-xs text-text-light-muted dark:text-text-muted">
           <p>{env.app.name} &copy; {new Date().getFullYear()}</p>
-          <p className="mt-1">Version {env.app.version}</p>
+         
         </div>
       </motion.div>
     </div>

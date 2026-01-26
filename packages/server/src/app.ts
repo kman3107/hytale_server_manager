@@ -209,21 +209,21 @@ export class App {
   }
 
   /**
-   * Run database migrations using Prisma migrate deploy
+   * Run database schema sync using Prisma db push
    * This ensures schema changes are applied automatically on startup
    */
   private async runMigrations(): Promise<void> {
-    logger.info('Running database migrations...');
+    logger.info('Running database schema sync...');
     try {
-      const { stdout, stderr } = await execAsync('npx prisma migrate deploy', {
+      const { stdout, stderr } = await execAsync('npx prisma db push --skip-generate --accept-data-loss', {
         cwd: path.join(__dirname, '..'),
         env: { ...process.env, DATABASE_URL: config.databaseUrl },
       });
       if (stdout) logger.info(stdout.trim());
       if (stderr && !stderr.includes('Already in sync')) logger.warn(stderr.trim());
-      logger.info('Database migrations complete');
+      logger.info('Database schema sync complete');
     } catch (error: any) {
-      logger.warn('Migration warning:', error.message);
+      logger.warn('Database sync warning:', error.message);
     }
   }
 

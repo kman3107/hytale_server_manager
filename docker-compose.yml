@@ -35,7 +35,7 @@ services:
       # Database persistence
       - hsm-database:/app/data/db
       # Game server files
-      - hsm-servers:/app/data/servers
+      - hsm-servers:/app/servers
       # Backup storage
       - hsm-backups:/app/data/backups
       # Application logs

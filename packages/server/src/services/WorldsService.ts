@@ -62,7 +62,7 @@ const IMMUTABLE_FIELDS = ['Version', 'UUID', 'Seed', 'WorldGen', 'GameplayConfig
  * Known editable fields (for documentation/reference only).
  * Filtering uses IMMUTABLE_FIELDS blacklist - all other fields are allowed.
  */
-const EDITABLE_FIELDS = [
+const _EDITABLE_FIELDS = [
   'IsPvpEnabled',
   'IsFallDamageEnabled',
   'IsSpawningNPC',

@@ -284,6 +284,7 @@ function loadEnvConfig(): Partial<AppConfig> {
   if (process.env.JWT_EXPIRES_IN) envConfig.jwtExpiresIn = process.env.JWT_EXPIRES_IN;
   if (process.env.RATE_LIMIT_WINDOW) envConfig.rateLimitWindow = parseInt(process.env.RATE_LIMIT_WINDOW, 10);
   if (process.env.RATE_LIMIT_MAX) envConfig.rateLimitMax = parseInt(process.env.RATE_LIMIT_MAX, 10);
+  if (process.env.MAX_FILE_UPLOAD_SIZE) envConfig.maxFileUploadSize = parseInt(process.env.MAX_FILE_UPLOAD_SIZE, 10);
 
   // Paths
   if (process.env.DATA_PATH) envConfig.dataPath = process.env.DATA_PATH;

@@ -2,6 +2,8 @@ import express, { Express } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import path from 'path';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 import { PrismaClient } from '@prisma/client';
 import { Server as HTTPServer, createServer as createHTTPServer } from 'http';
 import { Server as HTTPSServer, createServer as createHTTPSServer } from 'https';
@@ -63,6 +65,8 @@ import { apiLimiter } from './middleware/rateLimiter';
 import { configureSecurityHeaders, enforceHTTPS } from './middleware/security';
 import { authenticate } from './middleware/auth';
 import { activityLoggerMiddleware } from './middleware/activityLogger';
+
+const execAsync = promisify(exec);
 
 export class App {
   public express: Express;
@@ -202,6 +206,25 @@ export class App {
       'HTTPS is enabled but no certificates are configured. ' +
         'Either set SSL_CERT_PATH and SSL_KEY_PATH, or enable auto-generation with HTTPS_AUTO_GENERATE=true'
     );
+  }
+
+  /**
+   * Run database migrations using Prisma migrate deploy
+   * This ensures schema changes are applied automatically on startup
+   */
+  private async runMigrations(): Promise<void> {
+    logger.info('Running database migrations...');
+    try {
+      const { stdout, stderr } = await execAsync('npx prisma migrate deploy', {
+        cwd: path.join(__dirname, '..'),
+        env: { ...process.env, DATABASE_URL: config.databaseUrl },
+      });
+      if (stdout) logger.info(stdout.trim());
+      if (stderr && !stderr.includes('Already in sync')) logger.warn(stderr.trim());
+      logger.info('Database migrations complete');
+    } catch (error: any) {
+      logger.warn('Migration warning:', error.message);
+    }
   }
 
   /**
@@ -403,6 +426,9 @@ export class App {
       } else {
         logger.info('[App] HTTP server created (development mode or HTTPS disabled)');
       }
+
+      // Run database migrations before connecting
+      await this.runMigrations();
 
       // Connect to database
       await this.prisma.$connect();

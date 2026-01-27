@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal, ModalFooter, Button, Input } from '../ui';
 import { Server as ServerIcon } from 'lucide-react';
 import { HytaleServerDownloadSection } from '../features/HytaleServerDownloadSection';
@@ -43,6 +43,58 @@ export const CreateServerModal = ({ isOpen, onClose, onSubmit }: CreateServerMod
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<keyof ServerFormData, string>>>({});
+  const [jvmArgsManuallyEdited, setJvmArgsManuallyEdited] = useState(false);
+
+  // Build JVM args from memory and CPU settings
+  const buildJvmArgs = (minMem: string, maxMem: string, cpuCores?: number): string => {
+    const args: string[] = [];
+
+    // Memory args
+    if (minMem) args.push(`-Xms${minMem}G`);
+    if (maxMem) args.push(`-Xmx${maxMem}G`);
+
+    // CPU and GC args if cores specified
+    if (cpuCores && cpuCores > 0) {
+      const concurrentThreads = Math.max(1, Math.floor(cpuCores / 2));
+      args.push('-XX:+UseContainerSupport');
+      args.push(`-XX:ActiveProcessorCount=${cpuCores}`);
+      args.push(`-XX:ParallelGCThreads=${cpuCores}`);
+      args.push(`-XX:ConcGCThreads=${concurrentThreads}`);
+      args.push('-XX:+UseG1GC');
+      args.push('-XX:MaxGCPauseMillis=200');
+    }
+
+    // AOT cache for Hytale
+    args.push('-XX:AOTCache=HytaleServer.aot');
+
+    return args.join(' ');
+  };
+
+  // Auto-update JVM args when memory or CPU settings change
+  useEffect(() => {
+    // Don't auto-update if user has manually edited the JVM args
+    if (jvmArgsManuallyEdited) return;
+
+    if (formData.adapterType === 'java' && formData.adapterConfig) {
+      const { minMemory, maxMemory, cpuCores } = formData.adapterConfig;
+      const newJvmArgs = buildJvmArgs(
+        minMemory || '1',
+        maxMemory || '2',
+        cpuCores
+      );
+
+      // Only update if it's different to avoid infinite loops
+      if (formData.jvmArgs !== newJvmArgs) {
+        setFormData(prev => ({ ...prev, jvmArgs: newJvmArgs }));
+      }
+    }
+  }, [
+    formData.adapterConfig?.minMemory,
+    formData.adapterConfig?.maxMemory,
+    formData.adapterConfig?.cpuCores,
+    formData.adapterType,
+    jvmArgsManuallyEdited
+  ]);
 
   const validateForm = (): boolean => {
     const newErrors: Partial<Record<keyof ServerFormData, string>> = {};
@@ -117,6 +169,7 @@ export const CreateServerModal = ({ isOpen, onClose, onSubmit }: CreateServerMod
       adapterType: 'java',
     });
     setErrors({});
+    setJvmArgsManuallyEdited(false);
     onClose();
   };
 
@@ -435,10 +488,13 @@ export const CreateServerModal = ({ isOpen, onClose, onSubmit }: CreateServerMod
                 <textarea
                   placeholder="-Xms1G -Xmx2G -XX:AOTCache=HytaleServer.aot"
                   value={formData.jvmArgs || '-Xms1G -Xmx2G -XX:AOTCache=HytaleServer.aot'}
-                  onChange={(e) => setFormData(prev => ({
-                    ...prev,
-                    jvmArgs: e.target.value,
-                  }))}
+                  onChange={(e) => {
+                    setFormData(prev => ({
+                      ...prev,
+                      jvmArgs: e.target.value,
+                    }));
+                    setJvmArgsManuallyEdited(true);
+                  }}
                   className="w-full px-4 py-2 bg-white dark:bg-primary-bg border border-gray-300 dark:border-gray-700 rounded-lg text-text-light-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary/50 font-mono text-sm"
                   rows={2}
                 />

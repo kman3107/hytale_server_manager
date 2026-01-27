@@ -110,6 +110,56 @@ export const ServerSettingsPage = () => {
     maxMemory: '2',
     cpuCores: '',
   });
+  const [jvmArgsManuallyEdited, setJvmArgsManuallyEdited] = useState(false);
+
+  // Build JVM args from memory and CPU settings
+  const buildJvmArgs = (minMem: string, maxMem: string, cpuCores: string): string => {
+    const args: string[] = [];
+
+    // Memory args
+    if (minMem) args.push(`-Xms${minMem}G`);
+    if (maxMem) args.push(`-Xmx${maxMem}G`);
+
+    // CPU and GC args if cores specified
+    const cores = cpuCores ? parseInt(cpuCores) : 0;
+    if (cores > 0) {
+      const concurrentThreads = Math.max(1, Math.floor(cores / 2));
+      args.push('-XX:+UseContainerSupport');
+      args.push(`-XX:ActiveProcessorCount=${cores}`);
+      args.push(`-XX:ParallelGCThreads=${cores}`);
+      args.push(`-XX:ConcGCThreads=${concurrentThreads}`);
+      args.push('-XX:+UseG1GC');
+      args.push('-XX:MaxGCPauseMillis=200');
+    }
+
+    // AOT cache for Hytale
+    args.push('-XX:AOTCache=HytaleServer.aot');
+
+    return args.join(' ');
+  };
+
+  // Auto-update JVM args when memory or CPU settings change
+  useEffect(() => {
+    // Don't auto-update if user has manually edited the JVM args
+    if (jvmArgsManuallyEdited) return;
+
+    const newJvmArgs = buildJvmArgs(
+      advancedSettings.minMemory,
+      advancedSettings.maxMemory,
+      advancedSettings.cpuCores
+    );
+
+    // Only update if it's different to avoid infinite loops
+    if (advancedSettings.jvmArgs !== newJvmArgs) {
+      setAdvancedSettings(prev => ({ ...prev, jvmArgs: newJvmArgs }));
+      setHasChanges(true);
+    }
+  }, [
+    advancedSettings.minMemory,
+    advancedSettings.maxMemory,
+    advancedSettings.cpuCores,
+    jvmArgsManuallyEdited
+  ]);
 
   // Load server data
   useEffect(() => {
@@ -186,6 +236,7 @@ export const ServerSettingsPage = () => {
         maxMemory: adapterConfig.maxMemory ? adapterConfig.maxMemory.replace(/G$/i, '') : '2',
         cpuCores: adapterConfig.cpuCores ? String(adapterConfig.cpuCores) : '',
       });
+      setJvmArgsManuallyEdited(false);
     } catch (err: any) {
       console.error('Failed to load server:', err);
       setError(err.message || 'Failed to load server');
@@ -390,6 +441,7 @@ export const ServerSettingsPage = () => {
       maxMemory: adapterConfig.maxMemory ? adapterConfig.maxMemory.replace(/G$/i, '') : '2',
       cpuCores: adapterConfig.cpuCores ? String(adapterConfig.cpuCores) : '',
     });
+    setJvmArgsManuallyEdited(false);
 
     setHasChanges(false);
   };
@@ -863,6 +915,7 @@ export const ServerSettingsPage = () => {
                   value={advancedSettings.jvmArgs}
                   onChange={(e) => {
                     setAdvancedSettings(prev => ({ ...prev, jvmArgs: e.target.value }));
+                    setJvmArgsManuallyEdited(true);
                     setHasChanges(true);
                   }}
                   className="w-full bg-white dark:bg-primary-bg border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-text-light-primary dark:text-text-primary focus:outline-none focus:border-accent-primary font-mono text-sm"

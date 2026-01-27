@@ -23,6 +23,9 @@ export interface ServerFormData {
     jarFile?: string;
     assetsPath?: string;
     javaPath?: string;
+    minMemory?: string;
+    maxMemory?: string;
+    cpuCores?: number;
   };
 }
 
@@ -79,7 +82,21 @@ export const CreateServerModal = ({ isOpen, onClose, onSubmit }: CreateServerMod
 
     setLoading(true);
     try {
-      await onSubmit(formData);
+      // Process adapter config to format memory values
+      const processedFormData = { ...formData };
+      if (processedFormData.adapterConfig) {
+        const config = { ...processedFormData.adapterConfig };
+        // Add 'G' suffix to memory values if they exist and are not empty
+        if (config.minMemory) {
+          config.minMemory = `${config.minMemory}G`;
+        }
+        if (config.maxMemory) {
+          config.maxMemory = `${config.maxMemory}G`;
+        }
+        processedFormData.adapterConfig = config;
+      }
+
+      await onSubmit(processedFormData);
       handleClose();
     } catch (error) {
       console.error('Error creating server:', error);
@@ -342,6 +359,71 @@ export const CreateServerModal = ({ isOpen, onClose, onSubmit }: CreateServerMod
                   />
                   <p className="text-xs text-text-light-muted dark:text-text-muted mt-1">
                     Path to Java executable (or just "java" if in PATH)
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-text-light-primary dark:text-text-primary mb-2">
+                    Min Memory (GB)
+                  </label>
+                  <Input
+                    type="number"
+                    min="0.5"
+                    step="0.5"
+                    placeholder="1"
+                    value={formData.adapterConfig?.minMemory || ''}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      adapterConfig: { ...prev.adapterConfig, minMemory: e.target.value },
+                    }))}
+                  />
+                  <p className="text-xs text-text-light-muted dark:text-text-muted mt-1">
+                    Minimum heap memory (-Xms)
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-text-light-primary dark:text-text-primary mb-2">
+                    Max Memory (GB)
+                  </label>
+                  <Input
+                    type="number"
+                    min="0.5"
+                    step="0.5"
+                    placeholder="2"
+                    value={formData.adapterConfig?.maxMemory || ''}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      adapterConfig: { ...prev.adapterConfig, maxMemory: e.target.value },
+                    }))}
+                  />
+                  <p className="text-xs text-text-light-muted dark:text-text-muted mt-1">
+                    Maximum heap memory (-Xmx)
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-text-light-primary dark:text-text-primary mb-2">
+                    CPU Cores (Optional)
+                  </label>
+                  <Input
+                    type="number"
+                    min="1"
+                    step="1"
+                    placeholder="No limit"
+                    value={formData.adapterConfig?.cpuCores || ''}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      adapterConfig: {
+                        ...prev.adapterConfig,
+                        cpuCores: e.target.value ? parseInt(e.target.value) : undefined,
+                      },
+                    }))}
+                  />
+                  <p className="text-xs text-text-light-muted dark:text-text-muted mt-1">
+                    Limit CPU cores used by JVM
                   </p>
                 </div>
               </div>

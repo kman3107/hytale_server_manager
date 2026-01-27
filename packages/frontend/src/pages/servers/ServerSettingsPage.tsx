@@ -51,6 +51,9 @@ interface AdvancedSettings {
   jarFile: string;
   assetsPath: string;
   javaPath: string;
+  minMemory: string;
+  maxMemory: string;
+  cpuCores: string;
 }
 
 interface FtpStatus {
@@ -103,6 +106,9 @@ export const ServerSettingsPage = () => {
     jarFile: 'Server/HytaleServer.jar',
     assetsPath: '../Assets.zip',
     javaPath: 'java',
+    minMemory: '1',
+    maxMemory: '2',
+    cpuCores: '',
   });
 
   // Load server data
@@ -153,7 +159,14 @@ export const ServerSettingsPage = () => {
       });
 
       // Parse adapter config
-      let adapterConfig: { jarFile?: string; assetsPath?: string; javaPath?: string } = {};
+      let adapterConfig: {
+        jarFile?: string;
+        assetsPath?: string;
+        javaPath?: string;
+        minMemory?: string;
+        maxMemory?: string;
+        cpuCores?: number;
+      } = {};
       if (serverData.adapterConfig) {
         try {
           adapterConfig = JSON.parse(serverData.adapterConfig);
@@ -169,6 +182,9 @@ export const ServerSettingsPage = () => {
         jarFile: adapterConfig.jarFile || 'Server/HytaleServer.jar',
         assetsPath: adapterConfig.assetsPath || '../Assets.zip',
         javaPath: adapterConfig.javaPath || 'java',
+        minMemory: adapterConfig.minMemory ? adapterConfig.minMemory.replace(/G$/i, '') : '1',
+        maxMemory: adapterConfig.maxMemory ? adapterConfig.maxMemory.replace(/G$/i, '') : '2',
+        cpuCores: adapterConfig.cpuCores ? String(adapterConfig.cpuCores) : '',
       });
     } catch (err: any) {
       console.error('Failed to load server:', err);
@@ -291,6 +307,9 @@ export const ServerSettingsPage = () => {
             jarFile: advancedSettings.jarFile,
             assetsPath: advancedSettings.assetsPath,
             javaPath: advancedSettings.javaPath,
+            minMemory: advancedSettings.minMemory ? `${advancedSettings.minMemory}G` : undefined,
+            maxMemory: advancedSettings.maxMemory ? `${advancedSettings.maxMemory}G` : undefined,
+            cpuCores: advancedSettings.cpuCores ? parseInt(advancedSettings.cpuCores) : undefined,
           },
         };
       }
@@ -345,7 +364,14 @@ export const ServerSettingsPage = () => {
     });
 
     // Parse adapter config for reset
-    let adapterConfig: { jarFile?: string; assetsPath?: string; javaPath?: string } = {};
+    let adapterConfig: {
+      jarFile?: string;
+      assetsPath?: string;
+      javaPath?: string;
+      minMemory?: string;
+      maxMemory?: string;
+      cpuCores?: number;
+    } = {};
     if (server.adapterConfig) {
       try {
         adapterConfig = JSON.parse(server.adapterConfig);
@@ -360,6 +386,9 @@ export const ServerSettingsPage = () => {
       jarFile: adapterConfig.jarFile || 'Server/HytaleServer.jar',
       assetsPath: adapterConfig.assetsPath || '../Assets.zip',
       javaPath: adapterConfig.javaPath || 'java',
+      minMemory: adapterConfig.minMemory ? adapterConfig.minMemory.replace(/G$/i, '') : '1',
+      maxMemory: adapterConfig.maxMemory ? adapterConfig.maxMemory.replace(/G$/i, '') : '2',
+      cpuCores: adapterConfig.cpuCores ? String(adapterConfig.cpuCores) : '',
     });
 
     setHasChanges(false);
@@ -733,6 +762,63 @@ export const ServerSettingsPage = () => {
                 />
                 <p className="text-xs text-text-light-muted dark:text-text-muted mt-1">
                   Path to the Java executable. Use "java" to use system Java, or specify a full path (e.g., /usr/lib/jvm/java-17/bin/java).
+                </p>
+              </div>
+
+              {/* Memory Settings */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-text-light-muted dark:text-text-muted mb-2">Min Memory (GB)</label>
+                  <Input
+                    type="number"
+                    min="0.5"
+                    step="0.5"
+                    value={advancedSettings.minMemory}
+                    onChange={(e) => {
+                      setAdvancedSettings(prev => ({ ...prev, minMemory: e.target.value }));
+                      setHasChanges(true);
+                    }}
+                    placeholder="1"
+                  />
+                  <p className="text-xs text-text-light-muted dark:text-text-muted mt-1">
+                    Minimum heap memory allocation (-Xms)
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm text-text-light-muted dark:text-text-muted mb-2">Max Memory (GB)</label>
+                  <Input
+                    type="number"
+                    min="0.5"
+                    step="0.5"
+                    value={advancedSettings.maxMemory}
+                    onChange={(e) => {
+                      setAdvancedSettings(prev => ({ ...prev, maxMemory: e.target.value }));
+                      setHasChanges(true);
+                    }}
+                    placeholder="2"
+                  />
+                  <p className="text-xs text-text-light-muted dark:text-text-muted mt-1">
+                    Maximum heap memory allocation (-Xmx)
+                  </p>
+                </div>
+              </div>
+
+              {/* CPU Core Limit */}
+              <div>
+                <label className="block text-sm text-text-light-muted dark:text-text-muted mb-2">CPU Core Limit (Optional)</label>
+                <Input
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={advancedSettings.cpuCores}
+                  onChange={(e) => {
+                    setAdvancedSettings(prev => ({ ...prev, cpuCores: e.target.value }));
+                    setHasChanges(true);
+                  }}
+                  placeholder="Leave empty for no limit"
+                />
+                <p className="text-xs text-text-light-muted dark:text-text-muted mt-1">
+                  Limit JVM to use a specific number of CPU cores. Adds container-aware JVM flags and G1GC optimizations. Leave empty to use all available cores.
                 </p>
               </div>
 

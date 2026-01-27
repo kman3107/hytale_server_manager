@@ -1,6 +1,6 @@
 services:
   hytale-server-manager:
-    image: ghcr.io/nebula-codes/hytale-server-manager:latest
+    image: ghcr.io/nebula-codes/hytale-server-manager:beta
     container_name: hytale-server-manager
     restart: unless-stopped
     ports:
@@ -11,6 +11,7 @@ services:
       - PUID=1000
       - PGID=1000
       - NODE_ENV=production
+      - NODE_OPTIONS=--max-old-space-size=1536
       - PORT=3001
       - HOST=0.0.0.0
       # Required secrets - generate your own!

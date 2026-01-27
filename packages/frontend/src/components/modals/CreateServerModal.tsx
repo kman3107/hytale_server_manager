@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Modal, ModalFooter, Button, Input } from '../ui';
 import { Server as ServerIcon } from 'lucide-react';
 import { HytaleServerDownloadSection } from '../features/HytaleServerDownloadSection';
@@ -26,6 +26,12 @@ export interface ServerFormData {
     minMemory?: string;
     maxMemory?: string;
     cpuCores?: number;
+    useContainerSupport?: boolean;
+    useG1GC?: boolean;
+    maxGcPauseMillis?: string;
+    parallelGCThreads?: string;
+    concGCThreads?: string;
+    aotCache?: string;
   };
 }
 
@@ -43,48 +49,134 @@ export const CreateServerModal = ({ isOpen, onClose, onSubmit }: CreateServerMod
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<keyof ServerFormData, string>>>({});
-  const [jvmArgsManuallyEdited, setJvmArgsManuallyEdited] = useState(false);
+  const updatingFromRef = useRef<'fields' | 'jvmArgs' | null>(null);
 
   // Build JVM args from memory and CPU settings
-  const buildJvmArgs = (minMem: string, maxMem: string, cpuCores?: number): string => {
+  const buildJvmArgs = (config: ServerFormData['adapterConfig']): string => {
     const args: string[] = [];
+    if (!config) return '';
 
     // Memory args
-    if (minMem) args.push(`-Xms${minMem}G`);
-    if (maxMem) args.push(`-Xmx${maxMem}G`);
+    if (config.minMemory) args.push(`-Xms${config.minMemory}G`);
+    if (config.maxMemory) args.push(`-Xmx${config.maxMemory}G`);
 
-    // CPU and GC args if cores specified
-    if (cpuCores && cpuCores > 0) {
-      const concurrentThreads = Math.max(1, Math.floor(cpuCores / 2));
+    // Container support
+    if (config.useContainerSupport) {
       args.push('-XX:+UseContainerSupport');
-      args.push(`-XX:ActiveProcessorCount=${cpuCores}`);
-      args.push(`-XX:ParallelGCThreads=${cpuCores}`);
-      args.push(`-XX:ConcGCThreads=${concurrentThreads}`);
+    }
+
+    // CPU core limit
+    if (config.cpuCores && config.cpuCores > 0) {
+      args.push(`-XX:ActiveProcessorCount=${config.cpuCores}`);
+    }
+
+    // GC thread settings
+    if (config.parallelGCThreads) {
+      args.push(`-XX:ParallelGCThreads=${config.parallelGCThreads}`);
+    }
+    if (config.concGCThreads) {
+      args.push(`-XX:ConcGCThreads=${config.concGCThreads}`);
+    }
+
+    // G1 Garbage Collector
+    if (config.useG1GC) {
       args.push('-XX:+UseG1GC');
-      args.push('-XX:MaxGCPauseMillis=200');
+    }
+
+    // Max GC pause time
+    if (config.maxGcPauseMillis) {
+      args.push(`-XX:MaxGCPauseMillis=${config.maxGcPauseMillis}`);
     }
 
     // AOT cache for Hytale
-    args.push('-XX:AOTCache=HytaleServer.aot');
+    if (config.aotCache) {
+      args.push(`-XX:AOTCache=${config.aotCache}`);
+    }
 
     return args.join(' ');
   };
 
+  // Parse JVM args to extract memory and CPU settings
+  const parseJvmArgs = (jvmArgs: string): Partial<ServerFormData['adapterConfig']> => {
+    const result: Partial<ServerFormData['adapterConfig']> = {
+      minMemory: '1',
+      maxMemory: '2',
+      cpuCores: undefined,
+      useContainerSupport: false,
+      useG1GC: false,
+      maxGcPauseMillis: '200',
+      parallelGCThreads: '',
+      concGCThreads: '',
+      aotCache: 'HytaleServer.aot',
+    };
+
+    // Extract -Xms (min memory)
+    const xmsMatch = jvmArgs.match(/-Xms(\d+(?:\.\d+)?)(G|M)?/i);
+    if (xmsMatch) {
+      const value = parseFloat(xmsMatch[1]);
+      const unit = xmsMatch[2]?.toUpperCase();
+      result.minMemory = unit === 'M' ? (value / 1024).toFixed(1) : value.toString();
+    }
+
+    // Extract -Xmx (max memory)
+    const xmxMatch = jvmArgs.match(/-Xmx(\d+(?:\.\d+)?)(G|M)?/i);
+    if (xmxMatch) {
+      const value = parseFloat(xmxMatch[1]);
+      const unit = xmxMatch[2]?.toUpperCase();
+      result.maxMemory = unit === 'M' ? (value / 1024).toFixed(1) : value.toString();
+    }
+
+    // Extract CPU cores from -XX:ActiveProcessorCount
+    const cpuMatch = jvmArgs.match(/-XX:ActiveProcessorCount=(\d+)/i);
+    if (cpuMatch) {
+      result.cpuCores = parseInt(cpuMatch[1]);
+    }
+
+    // Extract UseContainerSupport
+    result.useContainerSupport = /-XX:\+UseContainerSupport/i.test(jvmArgs);
+
+    // Extract ParallelGCThreads
+    const parallelMatch = jvmArgs.match(/-XX:ParallelGCThreads=(\d+)/i);
+    if (parallelMatch) {
+      result.parallelGCThreads = parallelMatch[1];
+    }
+
+    // Extract ConcGCThreads
+    const concMatch = jvmArgs.match(/-XX:ConcGCThreads=(\d+)/i);
+    if (concMatch) {
+      result.concGCThreads = concMatch[1];
+    }
+
+    // Extract UseG1GC
+    result.useG1GC = /-XX:\+UseG1GC/i.test(jvmArgs);
+
+    // Extract MaxGCPauseMillis
+    const pauseMatch = jvmArgs.match(/-XX:MaxGCPauseMillis=(\d+)/i);
+    if (pauseMatch) {
+      result.maxGcPauseMillis = pauseMatch[1];
+    }
+
+    // Extract AOTCache
+    const aotMatch = jvmArgs.match(/-XX:AOTCache=([^\s]+)/i);
+    if (aotMatch) {
+      result.aotCache = aotMatch[1];
+    }
+
+    return result;
+  };
+
   // Auto-update JVM args when memory or CPU settings change
   useEffect(() => {
-    // Don't auto-update if user has manually edited the JVM args
-    if (jvmArgsManuallyEdited) return;
+    if (updatingFromRef.current === 'jvmArgs') {
+      updatingFromRef.current = null;
+      return;
+    }
 
     if (formData.adapterType === 'java' && formData.adapterConfig) {
-      const { minMemory, maxMemory, cpuCores } = formData.adapterConfig;
-      const newJvmArgs = buildJvmArgs(
-        minMemory || '1',
-        maxMemory || '2',
-        cpuCores
-      );
+      const newJvmArgs = buildJvmArgs(formData.adapterConfig);
 
-      // Only update if it's different to avoid infinite loops
       if (formData.jvmArgs !== newJvmArgs) {
+        updatingFromRef.current = 'fields';
         setFormData(prev => ({ ...prev, jvmArgs: newJvmArgs }));
       }
     }
@@ -92,9 +184,43 @@ export const CreateServerModal = ({ isOpen, onClose, onSubmit }: CreateServerMod
     formData.adapterConfig?.minMemory,
     formData.adapterConfig?.maxMemory,
     formData.adapterConfig?.cpuCores,
-    formData.adapterType,
-    jvmArgsManuallyEdited
+    formData.adapterConfig?.useContainerSupport,
+    formData.adapterConfig?.useG1GC,
+    formData.adapterConfig?.maxGcPauseMillis,
+    formData.adapterConfig?.parallelGCThreads,
+    formData.adapterConfig?.concGCThreads,
+    formData.adapterConfig?.aotCache,
+    formData.adapterType
   ]);
+
+  // Auto-update fields when JVM args change
+  useEffect(() => {
+    if (updatingFromRef.current === 'fields') {
+      updatingFromRef.current = null;
+      return;
+    }
+
+    if (formData.adapterType === 'java' && formData.jvmArgs) {
+      const parsed = parseJvmArgs(formData.jvmArgs);
+      const currentConfig = formData.adapterConfig || {};
+
+      // Check if any field has changed
+      const hasChanges = Object.keys(parsed).some(
+        key => parsed[key as keyof typeof parsed] !== currentConfig[key as keyof typeof currentConfig]
+      );
+
+      if (hasChanges) {
+        updatingFromRef.current = 'jvmArgs';
+        setFormData(prev => ({
+          ...prev,
+          adapterConfig: {
+            ...prev.adapterConfig,
+            ...parsed,
+          },
+        }));
+      }
+    }
+  }, [formData.jvmArgs, formData.adapterType]);
 
   const validateForm = (): boolean => {
     const newErrors: Partial<Record<keyof ServerFormData, string>> = {};
@@ -169,7 +295,7 @@ export const CreateServerModal = ({ isOpen, onClose, onSubmit }: CreateServerMod
       adapterType: 'java',
     });
     setErrors({});
-    setJvmArgsManuallyEdited(false);
+    updatingFromRef.current = null;
     onClose();
   };
 
@@ -476,8 +602,115 @@ export const CreateServerModal = ({ isOpen, onClose, onSubmit }: CreateServerMod
                     }))}
                   />
                   <p className="text-xs text-text-light-muted dark:text-text-muted mt-1">
-                    Limit CPU cores used by JVM
+                    Limit CPU cores used by JVM via -XX:ActiveProcessorCount
                   </p>
+                </div>
+              </div>
+
+              {/* JVM Optimization Flags */}
+              <div className="border-t border-gray-300 dark:border-gray-700 pt-4 mt-4">
+                <h5 className="text-sm font-medium text-text-light-primary dark:text-text-primary mb-3">JVM Optimization Flags</h5>
+
+                <div className="space-y-3">
+                  {/* Container Support */}
+                  <div className="flex items-start gap-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.adapterConfig?.useContainerSupport || false}
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        adapterConfig: { ...prev.adapterConfig, useContainerSupport: e.target.checked },
+                      }))}
+                      className="mt-0.5"
+                    />
+                    <div className="flex-1">
+                      <label className="block text-xs text-text-light-primary dark:text-text-primary font-medium">
+                        Container Support
+                      </label>
+                      <p className="text-xs text-text-light-muted dark:text-text-muted">
+                        JVM container awareness for Docker/Kubernetes
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* G1GC */}
+                  <div className="flex items-start gap-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.adapterConfig?.useG1GC || false}
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        adapterConfig: { ...prev.adapterConfig, useG1GC: e.target.checked },
+                      }))}
+                      className="mt-0.5"
+                    />
+                    <div className="flex-1">
+                      <label className="block text-xs text-text-light-primary dark:text-text-primary font-medium">
+                        G1 Garbage Collector
+                      </label>
+                      <p className="text-xs text-text-light-muted dark:text-text-muted">
+                        Better performance for 4GB+ heaps, reduces lag
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* GC Thread Inputs */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Input
+                        type="number"
+                        min="1"
+                        placeholder="Parallel GC Threads (Leave blank for auto)"
+                        value={formData.adapterConfig?.parallelGCThreads || ''}
+                        onChange={(e) => setFormData(prev => ({
+                          ...prev,
+                          adapterConfig: { ...prev.adapterConfig, parallelGCThreads: e.target.value },
+                        }))}
+                        className="text-xs"
+                      />
+                    </div>
+                    <div>
+                      <Input
+                        type="number"
+                        min="1"
+                        placeholder="Concurrent GC Threads (Leave blank for auto)"
+                        value={formData.adapterConfig?.concGCThreads || ''}
+                        onChange={(e) => setFormData(prev => ({
+                          ...prev,
+                          adapterConfig: { ...prev.adapterConfig, concGCThreads: e.target.value },
+                        }))}
+                        className="text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Max GC Pause & AOT Cache */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Input
+                        type="number"
+                        min="50"
+                        placeholder="Max GC Pause (ms)"
+                        value={formData.adapterConfig?.maxGcPauseMillis || '200'}
+                        onChange={(e) => setFormData(prev => ({
+                          ...prev,
+                          adapterConfig: { ...prev.adapterConfig, maxGcPauseMillis: e.target.value },
+                        }))}
+                        className="text-xs"
+                      />
+                    </div>
+                    <div>
+                      <Input
+                        placeholder="AOT Cache File"
+                        value={formData.adapterConfig?.aotCache || 'HytaleServer.aot'}
+                        onChange={(e) => setFormData(prev => ({
+                          ...prev,
+                          adapterConfig: { ...prev.adapterConfig, aotCache: e.target.value },
+                        }))}
+                        className="text-xs font-mono"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -493,7 +726,6 @@ export const CreateServerModal = ({ isOpen, onClose, onSubmit }: CreateServerMod
                       ...prev,
                       jvmArgs: e.target.value,
                     }));
-                    setJvmArgsManuallyEdited(true);
                   }}
                   className="w-full px-4 py-2 bg-white dark:bg-primary-bg border border-gray-300 dark:border-gray-700 rounded-lg text-text-light-primary dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-primary/50 font-mono text-sm"
                   rows={2}

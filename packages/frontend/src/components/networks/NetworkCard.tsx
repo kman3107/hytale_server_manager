@@ -131,10 +131,9 @@ export const NetworkCard = ({
               </div>
               <p className="text-sm text-text-light-muted dark:text-text-muted mt-1">
                 {t('networks.card.member_count', {
-                  count: network.members.length,
-                  description: network.description,
-                  hasDescription: !!network.description,
+                  count: network.members.length
                 })}
+                {network.description && ` - ${network.description}`}
               </p>
             </div>
           </div>

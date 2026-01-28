@@ -21,11 +21,12 @@
         "search_placeholder": "Buscar servidores, mods, jugadores...",
         "actions": "Acciones",
         "confirm": "Confirmar",
+        "coming_soon": "Próximamente",
         "time_ago": {
             "just_now": "Ahora mismo",
-            "minutes_ago": "hace {{count}}m",
-            "hours_ago": "hace {{count}}h",
-            "days_ago": "hace {{count}}d"
+            "minutes_ago": "hace {count}m",
+            "hours_ago": "hace {count}h",
+            "days_ago": "hace {count}d"
         }
     },
     "ui": {
@@ -39,7 +40,7 @@
             "all": "Todos",
             "search": "Buscar...",
             "no_results": "Sin resultados",
-            "selected_count": "{{count}} seleccionado{{count, plural, one{} other{s}}}"
+            "selected_count": "{count, plural, =1 {1 seleccionado} other {# seleccionados}}"
         },
         "status": {
             "online": "En línea",
@@ -53,8 +54,8 @@
                 "server": "Servidor",
                 "player": "Jugador"
             },
-            "server_desc": "{{version}} • {{current}}/{{max}} jugadores",
-            "player_desc": "{{role}} • {{status}}",
+            "server_desc": "{version} • {current}/{max} jugadores",
+            "player_desc": "{role} • {status}",
             "hints": {
                 "navigate": "↑↓ Navegar",
                 "select": "↵ Seleccionar",
@@ -85,16 +86,16 @@
         "export": "Exportar CSV",
         "no_data": "No se encontraron datos",
         "selection": {
-            "count_one": "{{count}} elemento seleccionado",
-            "count_other": "{{count}} elementos seleccionados",
+            "count_one": "{count} elemento seleccionado",
+            "count_other": "{count} elementos seleccionados",
             "clear": "Limpiar selección"
         },
         "pagination": {
-            "showing": "Mostrando {{start}} a {{end}} de {{total}} resultados",
+            "showing": "Mostrando {start} a {end} de {total} resultados",
             "per_page": "Por página:",
             "previous": "Anterior",
             "next": "Siguiente",
-            "page_of": "Página {{page}} de {{total}}"
+            "page_of": "Página {page} de {total}"
         }
     },
     "nav": {
@@ -212,7 +213,7 @@
         },
         "delete_dialog": {
             "title": "Eliminar servidor",
-            "message": "¿Seguro que deseas eliminar \"{{name}}\"? Esta acción no se puede deshacer."
+            "message": "¿Seguro que deseas eliminar \"{name}\"? Esta acción no se puede deshacer."
         },
         "toast": {
             "generic_error": "Algo salió mal",
@@ -222,49 +223,49 @@
             },
             "starting": {
                 "title": "Servidor iniciando",
-                "description": "{{name}} se está iniciando..."
+                "description": "{name} se está iniciando..."
             },
             "start_failed": {
                 "title": "No se pudo iniciar el servidor"
             },
             "stopping": {
                 "title": "Servidor deteniéndose",
-                "description": "{{name}} se está apagando..."
+                "description": "{name} se está apagando..."
             },
             "stop_failed": {
                 "title": "No se pudo detener el servidor"
             },
             "restarting": {
                 "title": "Servidor reiniciando",
-                "description": "{{name}} se está reiniciando..."
+                "description": "{name} se está reiniciando..."
             },
             "restart_failed": {
                 "title": "No se pudo reiniciar el servidor"
             },
             "mod_uninstalled": {
                 "title": "Mod desinstalado",
-                "description": "{{mod}} ha sido eliminado"
+                "description": "{mod} ha sido eliminado"
             },
             "mod_uninstalled_failed": {
                 "title": "No se pudo desinstalar el mod"
             },
             "killed": {
                 "title": "Servidor forzado a detenerse",
-                "description": "{{name}} ha sido detenido a la fuerza"
+                "description": "{name} ha sido detenido a la fuerza"
             },
             "kill_failed": {
                 "title": "No se pudo forzar la detención"
             },
             "created": {
                 "title": "Servidor creado",
-                "description": "{{name}} se creó correctamente"
+                "description": "{name} se creó correctamente"
             },
             "create_failed": {
                 "title": "No se pudo crear el servidor"
             },
             "deleted": {
                 "title": "Servidor eliminado",
-                "description": "{{name}} ha sido eliminado"
+                "description": "{name} ha sido eliminado"
             },
             "delete_failed": {
                 "title": "No se pudo eliminar el servidor"
@@ -310,7 +311,7 @@
                 "browse_install": "Explorar e instalar mods",
                 "empty": "No hay mods instalados en este servidor",
                 "disabled": "Deshabilitado",
-                "installed_on": "Instalado {{date}}",
+                "installed_on": "Instalado {date}",
                 "uninstall_title": "Desinstalar mod",
                 "remove": "Eliminar",
                 "removing": "Eliminando...",
@@ -336,19 +337,19 @@
                 "load_failed": "No se pudieron cargar los mundos",
                 "deleted": {
                     "title": "Mundo eliminado",
-                    "description": "{{name}} ha sido eliminado"
+                    "description": "{name} ha sido eliminado"
                 },
                 "delete_failed": {
                     "title": "No se pudo eliminar el mundo"
                 }
             },
-            "confirm_delete": "¿Seguro que quieres eliminar el mundo \"{{name}}\"? Esta acción no se puede deshacer.",
+            "confirm_delete": "¿Seguro que quieres eliminar el mundo \"{name}\"? Esta acción no se puede deshacer.",
             "empty": {
                 "title": "No se encontraron mundos",
                 "subtitle": "Los mundos aparecerán aquí cuando el servidor los haya creado"
             },
-            "size": "Tamaño: {{size}}",
-            "last_played": "Última vez jugado: {{date}}",
+            "size": "Tamaño: {size}",
+            "last_played": "Última vez jugado: {date}",
             "actions": {
                 "settings": "Ajustes del mundo",
                 "config": "Configurar",
@@ -360,7 +361,7 @@
                 "body2": "Cada mundo puede tener ajustes distintos para PvP, daño por caída, aparición de NPC, tiempo de juego y más."
             },
             "world_settings": {
-                "title": "Ajustes del mundo - {{name}}",
+                "title": "Ajustes del mundo - {name}",
                 "tabs": {
                     "basic": "Ajustes básicos",
                     "gamerules": "Reglas de juego",
@@ -399,7 +400,7 @@
                         "randomTickSpeed": "Velocidad de ticks aleatorios",
                         "spawnRadius": "Radio de spawn"
                     },
-                    "additional": "Reglas adicionales ({{count}} en total)"
+                    "additional": "Reglas adicionales ({count} en total)"
                 },
                 "border": {
                     "helper": "Configura el borde del mundo para limitar el área jugable",
@@ -408,14 +409,14 @@
                     "center_x": "Centro X",
                     "center_z": "Centro Z",
                     "info_title": "Info del borde",
-                    "info_radius": "Radio del borde: {{radius}} bloques",
-                    "info_area": "Área total: {{area}}M bloques²",
-                    "info_center": "Punto central: ({{x}}, {{z}})"
+                    "info_radius": "Radio del borde: {radius} bloques",
+                    "info_area": "Área total: {area}M bloques²",
+                    "info_center": "Punto central: ({x}, {z})"
                 }
             }
         },
         "world_config": {
-            "title": "Config. de mundo - {{name}}",
+            "title": "Config. de mundo - {name}",
             "toast": {
                 "load_failed": "No se pudo cargar la configuración del mundo",
                 "saved": {
@@ -435,7 +436,7 @@
                 "json": "JSON"
             },
             "json": {
-                "invalid": "JSON inválido: {{error}}"
+                "invalid": "JSON inválido: {error}"
             },
             "sections": {
                 "gameplay": "Jugabilidad",
@@ -632,11 +633,11 @@
             "confirm_message": "Esto descargará la actualización, detendrá el servidor, aplicará cambios y reiniciará.",
             "confirm_yes": "Sí, actualizar ahora",
             "release_notes": "Notas de la Versión:",
-            "version_name": "Versión {{version}}",
-            "released_on": "Publicado {{date}}",
+            "version_name": "Versión {version}",
+            "released_on": "Publicado {date}",
             "released_recently": "Publicado recientemente",
             "docker_mode": "Ejecutando en Docker",
-            "last_checked": "Última comprobación: {{date}}",
+            "last_checked": "Última comprobación: {date}",
             "show_update": "Mostrar actualización",
             "docker": {
                 "instructions_title": "Actualizar despliegues Docker",
@@ -698,8 +699,8 @@
             "unknown": "Desconocido",
             "refresh": "Refrescar token",
             "account_title": "Cuenta de Hytale",
-            "account_label": "Cuenta: {{email}}",
-            "token_expires": "El token expira en {{minutes}} minutos",
+            "account_label": "Cuenta: {email}",
+            "token_expires": "El token expira en {minutes} minutos",
             "install_first": "Instala la herramienta de descarga primero para conectar tu cuenta.",
             "help": "¿Necesitas ayuda? Lee la guía de configuración en la documentación.",
             "info": "El Descargador de Hytale usa OAuth para autenticar tu cuenta. Tus credenciales se almacenan localmente y nunca se envían a terceros.",
@@ -733,7 +734,7 @@
             "search_all": "Buscar en todos",
             "warning": {
                 "none": "No hay proveedores configurados. Ve a Ajustes para añadir claves API.",
-                "single": "{{provider}} requiere una clave API. Ve a Ajustes para configurarla."
+                "single": "{provider} requiere una clave API. Ve a Ajustes para configurarla."
             },
             "this_provider": "Este proveedor"
         },
@@ -828,7 +829,7 @@
     "console": {
         "title": "Consola",
         "subtitle": "Monitoriza y controla tus servidores",
-        "live_console_title": "Consola en vivo - {{server}}",
+        "live_console_title": "Consola en vivo - {server}",
         "select_server_placeholder": "Selecciona un servidor",
         "waiting_for_logs": "Esperando registros...",
         "start_server_prompt": "Inicia el servidor para ver la consola",
@@ -854,8 +855,8 @@
     },
     "installation_queue": {
         "title": "Cola de instalación",
-        "active": "{{count}} en curso",
-        "clear_completed": "Limpiar completados ({{count}})",
+        "active": "{count} en curso",
+        "clear_completed": "Limpiar completados ({count})",
         "status": {
             "pending": "Pendiente",
             "downloading": "Descargando",
@@ -925,7 +926,7 @@
             "player_activity_title": "Actividad de jugadores",
             "player_activity_empty": "No hay datos de jugadores",
             "player_activity_series": "Jugadores",
-            "player_activity_tooltip_value": "{{count}} jugadores"
+            "player_activity_tooltip_value": "{count} jugadores"
         },
         "activity": {
             "title": "Actividad Reciente",
@@ -936,7 +937,7 @@
         "alerts": {
             "title": "Alertas",
             "loading": "Cargando alertas...",
-            "new_badge": "{{count}} nuevas",
+            "new_badge": "{count} nuevas",
             "no_unresolved": "No hay alertas sin resolver"
         },
         "quick_actions": {
@@ -945,14 +946,14 @@
             "stop_all": "Detener todos los servidores",
             "restart_all": "Reiniciar todos los servidores",
             "refresh": "Actualizar dashboard",
-            "stopped_count": "({{count}} detenidos)",
-            "running_count": "({{count}} en ejecución)",
+            "stopped_count": "({count} detenidos)",
+            "running_count": "({count} en ejecución)",
             "toast": {
-                "success_start": "Iniciando {{count}} servidor(es)",
-                "success_stop": "Deteniendo {{count}} servidor(es)",
-                "success_restart": "Reiniciando {{count}} servidor(es)",
+                "success_start": "Iniciando {count} servidor(es)",
+                "success_stop": "Deteniendo {count} servidor(es)",
+                "success_restart": "Reiniciando {count} servidor(es)",
                 "failed_title": "Acción fallida",
-                "failed_body": "{{count}} servidor(es) fallaron",
+                "failed_body": "{count} servidor(es) fallaron",
                 "none_title": "Sin servidores afectados",
                 "none_body": "Ningún servidor coincidió con los criterios de la acción"
             }
@@ -971,9 +972,9 @@
         "status_chart": {
             "title": "Estado del servidor",
             "empty": "No se encontraron servidores",
-            "total": "{{count}} servidor(es) en total",
+            "total": "{count} servidor(es) en total",
             "tooltip": {
-                "count": "{{count}} servidor(es)"
+                "count": "{count} servidor(es)"
             },
             "status": {
                 "running": "En ejecución",
@@ -1015,13 +1016,13 @@
         },
         "stats": {
             "total": "Copias totales",
-            "completed_failed": "{{completed}} completadas, {{failed}} fallidas",
+            "completed_failed": "{completed} completadas, {failed} fallidas",
             "storage_used": "Espacio usado",
             "avg_size": "Tamaño medio"
         },
         "cards": {
             "all_backups": "Todas las copias",
-            "server_backups": "Copias de {{server}}",
+            "server_backups": "Copias de {server}",
             "description": "Todas las copias del servidor con filtrado y orden avanzado"
         },
         "empty": {
@@ -1036,8 +1037,8 @@
             "description_placeholder": "ej.: Antes de una actualización, copia manual...",
             "description_help": "Añade una nota para identificar esta copia después",
             "preview_title": "Vista previa de la copia",
-            "preview_server": "Servidor: {{server}}",
-            "preview_note": "Nota: {{note}}",
+            "preview_server": "Servidor: {server}",
+            "preview_note": "Nota: {note}",
             "preview_info": "La copia incluirá todos los archivos del servidor, mundos y configuraciones.",
             "submit": "Crear copia",
             "errors": {
@@ -1046,21 +1047,21 @@
             }
         },
         "tooltips": {
-            "files_skipped": "{{count}} archivos omitidos"
+            "files_skipped": "{count} archivos omitidos"
         },
         "skipped": {
             "title": "Archivos Omitidos",
-            "summary": "{{count}} archivo(s) fueron omitidos durante la copia",
-            "excluded": "Excluidos por patrón ({{count}})",
-            "locked": "Bloqueados/inaccesibles ({{count}})",
-            "other": "Otros ({{count}})",
+            "summary": "{count} archivo(s) fueron omitidos durante la copia",
+            "excluded": "Excluidos por patrón ({count})",
+            "locked": "Bloqueados/inaccesibles ({count})",
+            "other": "Otros ({count})",
             "none": "No se omitieron archivos durante esta copia.",
             "close": "Cerrar"
         },
         "confirm": {
-            "restore": "¿Estás seguro de que deseas restaurar {{server}} desde esta copia? Esto reemplazará todos los archivos actuales del servidor.",
+            "restore": "¿Estás seguro de que deseas restaurar {server} desde esta copia? Esto reemplazará todos los archivos actuales del servidor.",
             "delete_backup": "¿Estás seguro de que deseas eliminar esta copia? Esta acción no se puede deshacer.",
-            "bulk_delete": "¿Estás seguro de que deseas eliminar {{count}} copia(s)? Esta acción no se puede deshacer."
+            "bulk_delete": "¿Estás seguro de que deseas eliminar {count} copia(s)? Esta acción no se puede deshacer."
         },
         "toast": {
             "generic_error": "Error desconocido",
@@ -1074,14 +1075,14 @@
             },
             "backup_started": {
                 "title": "Copia iniciada",
-                "description": "La copia de {{server}} se está creando en segundo plano"
+                "description": "La copia de {server} se está creando en segundo plano"
             },
             "create_failed": {
                 "title": "Error al crear copia"
             },
             "restored": {
                 "title": "Copia restaurada",
-                "description": "{{server}} ha sido restaurado desde la copia"
+                "description": "{server} ha sido restaurado desde la copia"
             },
             "deleted": {
                 "title": "Copia eliminada",
@@ -1091,8 +1092,8 @@
                 "title": "Error al eliminar copia"
             },
             "bulk_deleted": {
-                "title": "Eliminadas {{count}} copia(s)",
-                "description": "{{failed}} copia(s) no se pudieron eliminar"
+                "title": "Eliminadas {count} copia(s)",
+                "description": "{failed} copia(s) no se pudieron eliminar"
             },
             "bulk_failed": {
                 "title": "Algunas copias no se pudieron eliminar",
@@ -1115,7 +1116,7 @@
             "connected": "Conectado",
             "disconnected": "Desconectado"
         },
-        "plugin_version": "Plugin v{{version}}",
+        "plugin_version": "Plugin v{version}",
         "latency": "Latencia",
         "features": {
             "title": "Funciones disponibles",
@@ -1133,10 +1134,10 @@
             "player_leave_badge": "Jugador desconectado",
             "alert_badge": "Alerta",
             "info_badge": "Info",
-            "player_join": "{{username}} se ha unido al servidor",
-            "player_leave": "{{username}} ha abandonado el servidor",
-            "chat": "{{username}}: {{message}}",
-            "achievement": "{{username}} consiguió {{achievement}}"
+            "player_join": "{username} se ha unido al servidor",
+            "player_leave": "{username} ha abandonado el servidor",
+            "chat": "{username}: {message}",
+            "achievement": "{username} consiguió {achievement}"
         }
     },
     "economy": {
@@ -1175,17 +1176,17 @@
         "shops": {
             "title": "Tiendas del servidor",
             "description": "Gestiona tiendas e inventario dentro del juego",
-            "description_line": "Tienda dentro del juego con {{count}} artículos",
+            "description_line": "Tienda dentro del juego con {count} artículos",
             "labels": {
                 "items": "Artículos",
                 "location": "Ubicación",
                 "owner": "Propietario"
             },
             "sample_items": "Artículos de ejemplo:",
-            "more_items": "+{{count}} artículos más",
+            "more_items": "+{count} artículos más",
             "badges": {
-                "buy": "Comprar: ${{price}}",
-                "sell": "Vender: ${{price}}"
+                "buy": "Comprar: ${price}",
+                "sell": "Vender: ${price}"
             }
         },
         "modal": {
@@ -1230,7 +1231,7 @@
             "modified": "Modificado",
             "actions": "Acciones",
             "files_and_folders": "Archivos y carpetas",
-            "search_results": "Resultados de búsqueda para \"{{query}}\""
+            "search_results": "Resultados de búsqueda para \"{query}\""
         },
         "empty": {
             "search": "No se encontraron archivos",
@@ -1240,12 +1241,12 @@
             "editable": "Editable"
         },
         "confirm": {
-            "delete_file": "¿Estás seguro de que deseas eliminar \"{{name}}\"?",
-            "delete_directory": "¿Estás seguro de que deseas eliminar el directorio \"{{name}}\" y todo su contenido?"
+            "delete_file": "¿Estás seguro de que deseas eliminar \"{name}\"?",
+            "delete_directory": "¿Estás seguro de que deseas eliminar el directorio \"{name}\" y todo su contenido?"
         },
         "alert": {
             "unexpected_error": "Ocurrió un error inesperado",
-            "delete_error": "Error al eliminar {{type}}: {{message}}"
+            "delete_error": "Error al eliminar {type}: {message}"
         },
         "types": {
             "file": "archivo",
@@ -1256,7 +1257,7 @@
             "title_folder": "Crear nueva carpeta",
             "creating_file": "Creando un nuevo archivo",
             "creating_folder": "Creando una nueva carpeta",
-            "location": "Ubicación: /{{path}}",
+            "location": "Ubicación: /{path}",
             "file_name": "Nombre del archivo",
             "folder_name": "Nombre de la carpeta",
             "placeholder": {
@@ -1273,18 +1274,18 @@
                 "required": "El nombre es obligatorio",
                 "separators": "El nombre no puede contener separadores (/ o \\)"
             },
-            "error_generic": "No se pudo crear el {{type}}"
+            "error_generic": "No se pudo crear el {type}"
         },
         "editor": {
-            "title": "Editar archivo: {{name}}",
+            "title": "Editar archivo: {name}",
             "load_error": "No se pudo cargar el archivo",
             "save_error": "No se pudo guardar el archivo",
-            "meta": "{{lang}} • {{size}} KB",
+            "meta": "{lang} • {size} KB",
             "unsaved": "Cambios sin guardar",
             "loading": "Cargando archivo...",
             "placeholder": "Contenido del archivo...",
-            "lines": "{{count}} líneas",
-            "characters": "{{count}} caracteres",
+            "lines": "{count} líneas",
+            "characters": "{count} caracteres",
             "save": "Guardar cambios"
         },
         "upload": {
@@ -1294,18 +1295,18 @@
             "select_files": "Seleccionar archivos",
             "max_size_label": "Tamaño máximo de archivo:",
             "auto_extract": "Extraer archivos ZIP automáticamente",
-            "list_title": "Subidas ({{count}})",
+            "list_title": "Subidas ({count})",
             "clear_completed": "Borrar completados",
             "extracted": "Extraído",
             "waiting": "Esperando...",
-            "extracted_count": "Se extrajeron {{count}} archivo(s)",
+            "extracted_count": "Se extrajeron {count} archivo(s)",
             "cancelled": "Cancelado",
             "cancel_title": "Cancelar subida",
             "remove_title": "Quitar de la lista",
             "errors": {
                 "empty": "No se pueden subir archivos vacíos",
-                "too_large": "El archivo supera el tamaño máximo de {{max}}MB (mide {{size}}MB)",
-                "duplicate": "Duplicado: \"{{file}}\" aparece {{count}} veces en la cola",
+                "too_large": "El archivo supera el tamaño máximo de {max}MB (mide {size}MB)",
+                "duplicate": "Duplicado: \"{file}\" aparece {count} veces en la cola",
                 "cancelled": "La subida fue cancelada",
                 "network": "Error de red durante la subida",
                 "invalid": "Archivo o solicitud inválidos",
@@ -1316,7 +1317,7 @@
                 "failed": "La subida falló"
             },
             "validation": {
-                "failed": "{{count}} archivo(s) no se pudieron añadir"
+                "failed": "{count} archivo(s) no se pudieron añadir"
             }
         }
     },
@@ -1328,7 +1329,7 @@
             "uncommon": "Poco común",
             "common": "Común"
         },
-        "durability": "Durabilidad: {{current}}/{{max}}"
+        "durability": "Durabilidad: {current}/{max}"
     },
     "error": {
         "title": "Algo salió mal",
@@ -1349,10 +1350,10 @@
     },
     "modpacks": {
         "title": "Modpacks",
-        "subtitle": "Colecciones de mods preconfiguradas para un arranque rápido {{available}}",
+        "subtitle": "Colecciones de mods preconfiguradas para un arranque rápido {available}",
         "available": "disponibles",
         "no_providers": "No hay proveedores de mods configurados",
-        "provider_not_configured": "{{provider}} no está configurado",
+        "provider_not_configured": "{provider} no está configurado",
         "provider": "Proveedor",
         "configure_hint": "Configura las claves API para los proveedores en ajustes para poder buscar e instalar modpacks.",
         "search": {
@@ -1390,9 +1391,9 @@
             "configure_providers": "Configurar proveedores",
             "retry": "Reintentar"
         },
-        "downloads": "{{downloads}} descargas",
+        "downloads": "{downloads} descargas",
         "installed": "Instalado",
-        "more_categories": "+{{count}}",
+        "more_categories": "+{count}",
         "empty": "No se encontraron modpacks que coincidan con tus criterios",
         "loading": "Cargando modpacks...",
         "error": {
@@ -1401,11 +1402,11 @@
         "toast": {
             "installing": {
                 "title": "Instalando...",
-                "description": "{{title}} se está instalando en {{server}}"
+                "description": "{title} se está instalando en {server}"
             },
             "completed": {
                 "title": "Instalación completa",
-                "description": "{{title}} ha sido instalado"
+                "description": "{title} ha sido instalado"
             },
             "failed": {
                 "title": "La instalación falló",
@@ -1415,10 +1416,10 @@
     },
     "mods": {
         "title": "Mods",
-        "subtitle": "Descubre mods para mejorar tu servidor {{available}}",
-        "available_suffix": "({{count}} disponibles)",
+        "subtitle": "Descubre mods para mejorar tu servidor {available}",
+        "available_suffix": "({count} disponibles)",
         "no_providers": "No hay proveedores de mods configurados",
-        "provider_not_configured": "{{provider}} no está configurado",
+        "provider_not_configured": "{provider} no está configurado",
         "provider": "Proveedor",
         "configure_hint": "Configura las claves API para los proveedores en ajustes para buscar e instalar mods.",
         "search": {
@@ -1466,43 +1467,43 @@
             "retry": "Reintentar"
         },
         "latest_version": "Última",
-        "by_author": "por {{author}}",
-        "downloads": "{{downloads}} descargas",
-        "more_categories": "+{{count}}",
+        "by_author": "por {author}",
+        "downloads": "{downloads} descargas",
+        "more_categories": "+{count}",
         "empty": "No se encontraron mods que coincidan con tus criterios",
         "loading": "Cargando mods...",
         "error": {
             "title": "Error al cargar mods"
         },
         "server_select": {
-            "title": "Instalar {{name}}",
-            "by_author": "por {{author}}",
-            "downloads": "{{count}} descargas",
+            "title": "Instalar {name}",
+            "by_author": "por {author}",
+            "downloads": "{count} descargas",
             "version_label": "Selecciona versión",
-            "version_option": "{{version}}{{date, select, ''{} other{ - {{date}}}}}",
+            "version_option": "{version}{date, select, ''{} other{ - {date}}}",
             "latest": "Última",
             "deps_checking": "Comprobando dependencias...",
             "deps_error": "No se pudieron obtener las dependencias",
             "deps_label": "Dependencias",
-            "deps_version": "Versión: {{version}}",
+            "deps_version": "Versión: {version}",
             "any": "Cualquiera",
             "required": "Requerida",
             "optional": "Opcional",
             "deps_notice": "Las dependencias requeridas se instalarán automáticamente",
             "server_label": "Selecciona servidor destino",
-            "server_meta": "{{address}}:{{port}} • v{{version}}",
-            "players": "{{current}}/{{max}} jugadores",
-            "summary": "✓ {{project}} se instalará en {{server}}",
+            "server_meta": "{address}:{port} • v{version}",
+            "players": "{current}/{max} jugadores",
+            "summary": "✓ {project} se instalará en {server}",
             "install": "Instalar"
         },
         "toast": {
             "installing": {
                 "title": "Instalando...",
-                "description": "{{title}} se está instalando en {{server}}"
+                "description": "{title} se está instalando en {server}"
             },
             "completed": {
                 "title": "Instalación completa",
-                "description": "{{title}} ha sido instalado"
+                "description": "{title} ha sido instalado"
             },
             "failed": {
                 "title": "La instalación falló",
@@ -1520,7 +1521,7 @@
         "search_all": "Buscar en todos",
         "warning": {
             "none": "No hay proveedores configurados. Ve a Ajustes para añadir claves API.",
-            "single": "{{provider}} requiere una clave API. Ve a Ajustes para configurarla."
+            "single": "{provider} requiere una clave API. Ve a Ajustes para configurarla."
         },
         "this_provider": "Este proveedor"
     },
@@ -1580,7 +1581,7 @@
             "processing": "Procesando",
             "success": "Archivos del servidor descargados correctamente en:",
             "inline": {
-                "downloading": "Descargando {{percent}}%",
+                "downloading": "Descargando {percent}%",
                 "extracting": "Extrayendo...",
                 "validating": "Validando..."
             }
@@ -1617,7 +1618,7 @@
             "description": "Necesitas privilegios de administrador para gestionar usuarios."
         },
         "list": {
-            "title": "Usuarios ({{count}})",
+            "title": "Usuarios ({count})",
             "subtitle": "Todos los usuarios registrados en el sistema",
             "loading": "Cargando usuarios...",
             "empty": "No se encontraron usuarios"
@@ -1683,11 +1684,11 @@
         "status": {
             "active": "Activo"
         },
-        "size": "Tamaño: {{size}}",
+        "size": "Tamaño: {size}",
         "actions": {
             "activate": "Activar"
         },
-        "confirm_delete": "¿Seguro que deseas eliminar el mundo {{name}}?",
+        "confirm_delete": "¿Seguro que deseas eliminar el mundo {name}?",
         "errors": {
             "servers": "No se pudieron cargar los servidores",
             "worlds": "No se pudieron cargar los mundos",
@@ -1706,15 +1707,15 @@
             "retry": "Reintentar"
         },
         "toast": {
-            "saved": "Permisos de {{role}} guardados correctamente",
-            "reset": "Permisos de {{role}} restablecidos a los valores predeterminados"
+            "saved": "Permisos de {role} guardados correctamente",
+            "reset": "Permisos de {role} restablecidos a los valores predeterminados"
         },
         "errors": {
             "load": "No se pudieron cargar los permisos",
-            "save": "No se pudieron guardar los permisos de {{role}}",
-            "reset": "No se pudieron restablecer los permisos de {{role}}"
+            "save": "No se pudieron guardar los permisos de {role}",
+            "reset": "No se pudieron restablecer los permisos de {role}"
         },
-        "confirm_reset": "¿Restablecer los permisos de {{role}} a los valores predeterminados? Esto no se puede deshacer.",
+        "confirm_reset": "¿Restablecer los permisos de {role} a los valores predeterminados? Esto no se puede deshacer.",
         "roles": {
             "admin": {
                 "label": "Admin",
@@ -1730,7 +1731,7 @@
             },
             "modified": "(modificado)",
             "all": "Todos",
-            "count": "{{count}} permisos",
+            "count": "{count} permisos",
             "admin_note": "Los permisos del administrador no se pueden modificar"
         },
         "categories": {
@@ -1747,7 +1748,7 @@
         },
         "table": {
             "permission": "Permiso",
-            "count": "{{count}} permisos"
+            "count": "{count} permisos"
         },
         "tooltips": {
             "admin_all": "El administrador tiene todos los permisos",
@@ -1779,7 +1780,7 @@
         },
         "list": {
             "all_title": "Todas las Alertas",
-            "server_title": "Alertas de {{serverName}}",
+            "server_title": "Alertas de {serverName}",
             "description": "Alertas del sistema con filtrado, búsqueda y paginación",
             "empty_title": "No hay alertas para mostrar",
             "empty_message": "Todos los sistemas funcionan correctamente"
@@ -1811,12 +1812,12 @@
             "resolve_error": "Error al resolver alerta",
             "deleted": "Alerta eliminada",
             "delete_error": "Error al eliminar alerta",
-            "bulk_read_success": "Marcadas {{count}} alerta(s) como leídas",
+            "bulk_read_success": "Marcadas {count} alerta(s) como leídas",
             "bulk_read_error": "Error al marcar alertas como leídas",
-            "bulk_resolve_success": "Resueltas {{count}} alerta(s)",
+            "bulk_resolve_success": "Resueltas {count} alerta(s)",
             "bulk_resolve_error": "Error al resolver alertas",
-            "bulk_delete_confirm": "¿Estás seguro de que deseas eliminar {{count}} alerta(s)?",
-            "bulk_delete_success": "Eliminadas {{count}} alerta(s)",
+            "bulk_delete_confirm": "¿Estás seguro de que deseas eliminar {count} alerta(s)?",
+            "bulk_delete_success": "Eliminadas {count} alerta(s)",
             "bulk_delete_error": "Error al eliminar alertas",
             "delete_confirm": "¿Estás seguro de que deseas eliminar esta alerta?",
             "load_error": "Error al cargar alertas"
@@ -1834,8 +1835,8 @@
             "create_group": "Crear grupo"
         },
         "tabs": {
-            "tasks": "Tareas ({{count}})",
-            "groups": "Grupos de tareas ({{count}})"
+            "tasks": "Tareas ({count})",
+            "groups": "Grupos de tareas ({count})"
         },
         "server_selector": {
             "label": "Servidor:",
@@ -1849,7 +1850,7 @@
         },
         "cards": {
             "all_tasks": "Todas las tareas",
-            "server_tasks": "Tareas de {{server}}",
+            "server_tasks": "Tareas de {server}",
             "description": "Tareas automatizadas y trabajos recurrentes con filtrado avanzado"
         },
         "empty": {
@@ -1868,7 +1869,7 @@
             "tasks": "Tareas",
             "delay": "Retardo",
             "on_failure": "Al fallar",
-            "task_count": "{{count}} tarea(s)"
+            "task_count": "{count} tarea(s)"
         },
         "status": {
             "active": "Activo",
@@ -1916,9 +1917,9 @@
         },
         "confirm": {
             "delete_task": "¿Estás seguro de que deseas eliminar esta tarea?",
-            "bulk_delete_tasks": "¿Estás seguro de que deseas eliminar {{count}} tarea(s)? Esta acción no se puede deshacer.",
+            "bulk_delete_tasks": "¿Estás seguro de que deseas eliminar {count} tarea(s)? Esta acción no se puede deshacer.",
             "delete_group": "¿Estás seguro de que deseas eliminar este grupo de tareas?",
-            "bulk_delete_groups": "¿Estás seguro de que deseas eliminar {{count}} grupo(s) de tareas? Esta acción no se puede deshacer."
+            "bulk_delete_groups": "¿Estás seguro de que deseas eliminar {count} grupo(s) de tareas? Esta acción no se puede deshacer."
         },
         "toast": {
             "generic_error": "Algo salió mal",
@@ -1954,12 +1955,12 @@
                 "title": "No se pudo eliminar la tarea"
             },
             "bulk_tasks_deleted": {
-                "title": "Eliminadas {{count}} tarea(s)",
-                "description": "{{failed}} tarea(s) no se pudieron eliminar"
+                "title": "Eliminadas {count} tarea(s)",
+                "description": "{failed} tarea(s) no se pudieron eliminar"
             },
             "bulk_tasks_failed": {
                 "title": "No se pudieron eliminar las tareas",
-                "description": "{{failed}} tarea(s) fallaron al eliminarse"
+                "description": "{failed} tarea(s) fallaron al eliminarse"
             },
             "task_created": {
                 "title": "Tarea creada",
@@ -1993,12 +1994,12 @@
                 "title": "No se pudo eliminar el grupo de tareas"
             },
             "bulk_groups_deleted": {
-                "title": "Eliminados {{count}} grupo(s)",
-                "description": "{{failed}} grupo(s) no se pudieron eliminar"
+                "title": "Eliminados {count} grupo(s)",
+                "description": "{failed} grupo(s) no se pudieron eliminar"
             },
             "bulk_groups_failed": {
                 "title": "No se pudieron eliminar los grupos",
-                "description": "{{failed}} grupo(s) fallaron al eliminarse"
+                "description": "{failed} grupo(s) fallaron al eliminarse"
             },
             "group_created": {
                 "title": "Grupo de tareas creado",
@@ -2040,11 +2041,11 @@
                 "custom_cron_helper": "Formato: minuto hora día mes día_semana (ej.: \"0 2 * * *\" = 2 AM diario)",
                 "preview": {
                     "title": "Vista previa de la tarea",
-                    "server": "Servidor: {{server}}",
-                    "name": "Nombre: {{name}}",
-                    "type": "Tipo: {{type}}",
-                    "schedule": "Programación: {{schedule}}",
-                    "command": "Comando: {{command}}"
+                    "server": "Servidor: {server}",
+                    "name": "Nombre: {name}",
+                    "type": "Tipo: {type}",
+                    "schedule": "Programación: {schedule}",
+                    "command": "Comando: {command}"
                 },
                 "errors": {
                     "select_server": "Por favor selecciona un servidor",
@@ -2073,17 +2074,17 @@
                 "delay_label": "Retraso entre tareas (segundos)",
                 "delay_helper": "Tiempo de espera entre cada tarea. Usa 0 para sin retraso.",
                 "tasks_label": "Tareas *",
-                "tasks_selected": "{{count}} seleccionadas",
+                "tasks_selected": "{count} seleccionadas",
                 "tasks_empty": "No hay tareas disponibles. Crea tareas programadas primero.",
                 "tasks_all_selected": "Todas las tareas seleccionadas",
                 "disabled": "Deshabilitada",
                 "preview": {
                     "title": "Vista previa del grupo",
-                    "name": "Nombre: {{name}}",
-                    "schedule": "Programación: {{schedule}}",
-                    "tasks": "Tareas: {{count}} tarea(s) se ejecutarán en secuencia",
-                    "delay": "con {{seconds}}s de espera entre cada una",
-                    "failure": "Al fallar: {{mode}}"
+                    "name": "Nombre: {name}",
+                    "schedule": "Programación: {schedule}",
+                    "tasks": "Tareas: {count} tarea(s) se ejecutarán en secuencia",
+                    "delay": "con {seconds}s de espera entre cada una",
+                    "failure": "Al fallar: {mode}"
                 },
                 "errors": {
                     "name": "Introduce un nombre para el grupo",
@@ -2101,7 +2102,7 @@
         "subtitle": "Supervisa y audita todas las acciones de los usuarios en el sistema",
         "history": {
             "title": "Historial de actividad",
-            "total": "{{count}} entradas en total"
+            "total": "{count} entradas en total"
         },
         "loading": "Cargando actividad...",
         "filters": {
@@ -2196,7 +2197,7 @@
             "clear": "Limpiar",
             "loading_servers": "Cargando servidores...",
             "no_servers": "No hay servidores disponibles",
-            "selected_count": "{{count}} servidor{{count, plural, one {} other {es}}} seleccionado",
+            "selected_count": "{count, plural, =1 {1 servidor seleccionado} other {# servidores seleccionados}}",
             "submit": "Crear red",
             "errors": {
                 "name": "El nombre de la red es obligatorio",
@@ -2214,7 +2215,7 @@
                 "partial": "Parcial",
                 "unknown": "Desconocido"
             },
-            "member_count": "{{count}} servidor{{count, plural, one{} other{es}}}{{hasDescription, select, true{ - {{description}}} false{}}}",
+            "member_count": "{count, plural, =1 {1 servidor} other {# servidores}}",
             "stats": {
                 "players": "Jugadores",
                 "avg_cpu": "CPU media",
@@ -2232,12 +2233,12 @@
             "empty": "No hay servidores en esta red",
             "confirm": {
                 "title": "Eliminar red",
-                "message": "¿Seguro que quieres eliminar \"{{name}}\"? Solo eliminará la agrupación, no los servidores.",
+                "message": "¿Seguro que quieres eliminar \"{name}\"? Solo eliminará la agrupación, no los servidores.",
                 "confirm": "Eliminar red"
             }
         },
         "manage": {
-            "title": "Gestionar servidores - {{name}}",
+            "title": "Gestionar servidores - {name}",
             "status": {
                 "running": "En ejecución",
                 "stopped": "Detenida",
@@ -2249,8 +2250,8 @@
                 "backend": "Backend",
                 "member": "Miembro"
             },
-            "current_members": "Miembros actuales ({{count}})",
-            "available": "Servidores disponibles ({{count}})",
+            "current_members": "Miembros actuales ({count})",
+            "available": "Servidores disponibles ({count})",
             "empty": "No hay servidores en esta red",
             "empty_available": "No hay servidores disponibles"
         },
@@ -2278,18 +2279,18 @@
     "updates": {
         "badge": {
             "checking": "Comprobando...",
-            "available_tooltip": "Actualización disponible: {{version}}",
+            "available_tooltip": "Actualización disponible: {version}",
             "update": "Actualizar",
-            "update_to": "Actualizar a {{version}}"
+            "update_to": "Actualizar a {version}"
         },
         "banner": {
-            "version": "Actualizar a v{{version}}",
+            "version": "Actualizar a v{version}",
             "short": "Actualizar",
             "dismiss_aria": "Descartar aviso de actualización"
         },
         "modal": {
             "title": "Actualización del servidor",
-            "current_version": "Versión actual: {{version}}",
+            "current_version": "Versión actual: {version}",
             "available_version_label": "Versión disponible:",
             "completed_message": "¡Actualización completada con éxito!",
             "errors": {
@@ -2318,23 +2319,23 @@
                 "failed": "Actualización fallida",
                 "rolled_back": "Revertido"
             },
-            "progress": "{{percent}}% completado",
+            "progress": "{percent}% completado",
             "checking": "Comprobando actualizaciones...",
             "up_to_date": {
                 "title": "Servidor actualizado",
-                "description": "Estás usando la última versión ({{version}})"
+                "description": "Estás usando la última versión ({version})"
             },
             "start": "Iniciar actualización",
             "cancel": "Cancelar actualización"
         },
         "history": {
             "title": "Historial de actualizaciones",
-            "subtitle": "Historial de versiones de {{server}}",
+            "subtitle": "Historial de versiones de {server}",
             "rollback_title": "Rollback disponible",
             "rollback_description": "Puedes restaurar el servidor al estado previo a la última actualización.",
             "rollback": "Rollback",
             "rollback_confirm": "¿Seguro que quieres volver a la versión anterior? Esto restaurará la copia creada antes de la última actualización.",
-            "load_error": "No se pudo cargar el historial: {{error}}",
+            "load_error": "No se pudo cargar el historial: {error}",
             "empty_title": "Sin historial de actualizaciones",
             "empty_description": "Este servidor aún no ha sido actualizado.",
             "status": {

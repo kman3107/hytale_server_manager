@@ -57,7 +57,7 @@ export const HytaleServerDownloadSection = ({
     if (gameVersion?.version && onVersionSet) {
       onVersionSet(gameVersion.version);
     }
-  }, [gameVersion?.version]);
+  }, [gameVersion?.version, onVersionSet]);
 
   // Handle download complete
   useEffect(() => {

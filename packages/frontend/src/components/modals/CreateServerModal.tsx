@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Modal, ModalFooter, Button, Input } from '../ui';
 import { ChevronDown, Server as ServerIcon } from 'lucide-react';
 import { HytaleServerDownloadSection } from '../features/HytaleServerDownloadSection';
@@ -306,7 +306,7 @@ export const CreateServerModal = ({ isOpen, onClose, onSubmit }: CreateServerMod
     onClose();
   };
 
-  const updateField = (field: keyof ServerFormData, value: string | number) => {
+  const updateField = useCallback((field: keyof ServerFormData, value: string | number) => {
     setFormData(prev => {
       const updated = { ...prev, [field]: value };
 
@@ -322,11 +322,9 @@ export const CreateServerModal = ({ isOpen, onClose, onSubmit }: CreateServerMod
 
       return updated;
     });
-    // Clear error for this field
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
-    }
-  };
+    // Clear error for this field (no null check needed)
+    setErrors(prev => ({ ...prev, [field]: undefined }));
+  }, []);
 
   return (
     <Modal
@@ -391,7 +389,7 @@ export const CreateServerModal = ({ isOpen, onClose, onSubmit }: CreateServerMod
           {/* Hytale Server Download */}
           <HytaleServerDownloadSection
             serverPath={formData.serverPath}
-            onVersionSet={(version) => updateField('version', version)}
+            onVersionSet={useCallback((version) => updateField('version', version), [updateField])}
           />
           {errors.version && (
             <p className="text-danger text-sm mt-1">{errors.version}</p>

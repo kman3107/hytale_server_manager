@@ -23,6 +23,7 @@ A web-based management dashboard for Hytale game servers. Built with React, Type
 ## Tech Stack
 
 **Frontend:** React 18, TypeScript, Tailwind CSS, Zustand, Vite
+
 **Backend:** Node.js, Express, Prisma, SQLite, Socket.IO
 
 ## Prerequisites
@@ -34,7 +35,7 @@ A web-based management dashboard for Hytale game servers. Built with React, Type
 
 ## Quick start
 
-Use the `docker-compose.yml` file provided to set up your docker container instance.
+Use the [`docker-compose.yml`](docker-compose.yml) file provided to set up your docker container instance.
 
 > [!NOTE]
 > UnRAID users can use the UnRAID app store.

@@ -207,7 +207,23 @@ export const useAuthStore = create<AuthStore>()(
             return;
           }
 
-          // getCurrentUser() calls refreshAccessToken internally, so we don't need isSessionValid()
+          // Check if there's an access token in localStorage before attempting refresh
+          // This prevents unnecessary API calls on the login page
+          const hasToken = !!localStorage.getItem('accessToken');
+
+          if (!hasToken) {
+            set({
+              user: null,
+              isAuthenticated: false,
+              isInitializing: false,
+              setupRequired: false,
+              isSetupLoading: false,
+            });
+            logger.debug('Auth initialized: no stored token');
+            return;
+          }
+
+          // getCurrentUser() calls refreshAccessToken internally
           const user = await authService.getCurrentUser();
 
           set({

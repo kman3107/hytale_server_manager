@@ -207,42 +207,32 @@ export const useAuthStore = create<AuthStore>()(
             return;
           }
 
-          const isValid = await authService.isSessionValid();
+          // getCurrentUser() calls refreshAccessToken internally, so we don't need isSessionValid()
+          const user = await authService.getCurrentUser();
 
-          if (isValid) {
-            const user = await authService.getCurrentUser();
-            set({
-              user,
-              isAuthenticated: !!user,
-              isInitializing: false,
-              setupRequired: false,
-              isSetupLoading: false,
-            });
+          set({
+            user,
+            isAuthenticated: !!user,
+            isInitializing: false,
+            setupRequired: false,
+            isSetupLoading: false,
+          });
 
-            // Fetch permissions if user is authenticated
-            if (user) {
-              try {
-                const permissionsResponse = await api.getMyPermissions();
-                set((state) => ({
-                  user: state.user
-                    ? { ...state.user, permissions: permissionsResponse.permissions as PermissionCode[] }
-                    : null,
-                }));
-                logger.debug('User permissions loaded:', permissionsResponse.permissions.length);
-              } catch (permError) {
-                logger.warn('Failed to fetch permissions:', permError);
-              }
+          // Fetch permissions if user is authenticated
+          if (user) {
+            try {
+              const permissionsResponse = await api.getMyPermissions();
+              set((state) => ({
+                user: state.user
+                  ? { ...state.user, permissions: permissionsResponse.permissions as PermissionCode[] }
+                  : null,
+              }));
+              logger.debug('User permissions loaded:', permissionsResponse.permissions.length);
+            } catch (permError) {
+              logger.warn('Failed to fetch permissions:', permError);
             }
-
-            logger.info('Auth initialized:', user?.email);
+            logger.info('Auth initialized:', user.email);
           } else {
-            set({
-              user: null,
-              isAuthenticated: false,
-              isInitializing: false,
-              setupRequired: false,
-              isSetupLoading: false,
-            });
             logger.debug('Auth initialized: no valid session');
           }
         } catch (error) {

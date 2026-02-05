@@ -10,9 +10,6 @@ export const BridgePage = () => {
   const getConnectionLabel = () =>
     bridge.connected ? t('bridge.connection.connected') : t('bridge.connection.disconnected');
 
-  const getStatusVariant = () =>
-    bridge.connected ? 'success' : 'danger';
-
   const getLatencyLabel = () => t('bridge.latency');
 
   const getFeatureBadge = (enabled: boolean) =>

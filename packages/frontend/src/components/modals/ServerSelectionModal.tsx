@@ -112,7 +112,7 @@ export const ServerSelectionModal = ({ isOpen, onClose, project, onInstall }: Se
             <div className="flex gap-2 mt-2">
               <Badge size="sm" variant="info">{project.classification}</Badge>
               <Badge size="sm" variant="default">
-                {t('mods.server_select.downloads', { count: project.downloads.toLocaleString() })}
+                {t('mods.server_select.downloads', { count: project.downloads })}
               </Badge>
             </div>
           </div>
